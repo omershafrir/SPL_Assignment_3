@@ -1,4 +1,4 @@
-package bgu.spl.net.impl.rci;
+package bgu.spl.net.info.impl.rci;
 
 import bgu.spl.net.api.MessagingProtocol;
 import java.io.Serializable;

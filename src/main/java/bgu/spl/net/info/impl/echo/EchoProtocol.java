@@ -1,4 +1,4 @@
-package bgu.spl.net.impl.echo;
+package bgu.spl.net.info.impl.echo;
 
 import bgu.spl.net.api.MessagingProtocol;
 import java.time.LocalDateTime;
@@ -16,7 +16,7 @@ public class EchoProtocol implements MessagingProtocol<String> {
 
     private String createEcho(String message) {
         String echoPart = message.substring(Math.max(message.length() - 2, 0), message.length());
-        return message + "src/main " + echoPart + " .. " + echoPart + " ..";
+        return message + "src/main " + echoPart + "src/main " + echoPart + " ..";
     }
 
     @Override
