@@ -21,7 +21,9 @@ public class ConnectionsImpl<T> implements Connections {
 
     @Override
     public void broadcast(Object msg) {
-
+        for(ConnectionHandler<T> user: connectionsHandlerVector){
+            user.send((T)msg);
+        }
 
     }
 
