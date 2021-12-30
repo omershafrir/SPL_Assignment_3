@@ -22,6 +22,7 @@ public class ConnectionsImpl<T> implements Connections {
     @Override
     public void broadcast(Object msg) {
 
+
     }
 
     @Override
@@ -30,6 +31,7 @@ public class ConnectionsImpl<T> implements Connections {
     }
 
     public void addHandler(ConnectionHandler<T> handler){
+
         connectionsHandlerVector.add(handler);
     }
 
