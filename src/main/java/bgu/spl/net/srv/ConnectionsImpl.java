@@ -9,7 +9,7 @@ public class ConnectionsImpl<T> implements Connections {
     private Server<T> server;
     private Vector<ConnectionHandler<T>> connectionsHandlerVector;
     private static int connectionIdCounter = 0;
-    private HashMap<ConnectionHandler<T> , Integer> connectionIDS;
+    private HashMap<Integer,ConnectionHandler<T>> connectionIDS;
 
     public ConnectionsImpl(Server<T> server) {
         this.server = server;
@@ -19,6 +19,7 @@ public class ConnectionsImpl<T> implements Connections {
 
     @Override
     public boolean send(int connectionId, Object msg) {
+        //to change
         if(connectionIDS.containsValue(connectionId) && msg!=null){  //sanity check
 
         }
@@ -35,19 +36,20 @@ public class ConnectionsImpl<T> implements Connections {
 
     @Override
     public void disconnect(int connectionId) {
-
+        if(connectionIDS.containsKey(connectionId)){
+            ConnectionHandler<T> toDisconnect = connectionIDS.get(connectionId);
+            if(connectionsHandlerVector.contains(toDisconnect)) {
+                connectionsHandlerVector.remove(toDisconnect);
+                connectionIDS.remove(toDisconnect);
+            }
+        }
     }
 
     public void addHandler(ConnectionHandler<T> handler){
 
         connectionsHandlerVector.add(handler);
-        connectionIDS.put(handler , connectionIdCounter++);
+        connectionIDS.put(connectionIdCounter++, handler);
     }
 
-    public void deleteHandler(ConnectionHandler<T> handler){
-        if(connectionsHandlerVector.contains(handler)) {
-            connectionsHandlerVector.remove(handler);
-            connectionIDS.remove(handler);
-        }
-    }
+
 }
