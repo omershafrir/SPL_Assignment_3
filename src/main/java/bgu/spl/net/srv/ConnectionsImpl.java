@@ -19,8 +19,16 @@ public class ConnectionsImpl<T> implements Connections {
 
     @Override
     public boolean send(int connectionId, Object msg) {
-        if(connectionIDS.containsValue(connectionId) && msg!=null){  //sanity check
+        if(connectionIDS.containsKey(connectionId) && msg!=null){  //input check
+            connectionIDS.get(connectionId).send((T)msg);
 
+            for (Integer currConnectionId : connectionIDS.keySet()){
+                if(currConnectionId.equals(connectionId)) {
+                    connectionIDS.ge
+                    handler.send((T) msg);
+                    return true;
+                }
+            }
         }
         return false;
     }
