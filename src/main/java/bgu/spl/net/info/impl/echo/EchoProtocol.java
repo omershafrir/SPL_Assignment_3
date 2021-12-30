@@ -10,7 +10,7 @@ public class EchoProtocol implements MessagingProtocol<String> {
     @Override
     public String process(String msg) {
         shouldTerminate = "bye".equals(msg);
-        System.out.println("[" + LocalDateTime.now() + "]: " + msg);
+        System.out.println("[" + LocalDateTime.now() + "]: " + "THIS IS ME TAKING OVER BITCHHHHHH           "+ msg);
         return createEcho(msg);
     }
 
