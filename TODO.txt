@@ -1,1 +1,6 @@
-HELLO
+TO VERIFY:
+
+1. connectionsImpl : boolean send ? what boolean means.
+
+TO REMEMBER:
+1. call dsiconnect(int connectionId) when calling logout()/
