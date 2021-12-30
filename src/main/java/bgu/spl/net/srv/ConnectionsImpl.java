@@ -19,12 +19,13 @@ public class ConnectionsImpl<T> implements Connections {
 
     @Override
     public boolean send(int connectionId, Object msg) {
-        //to change
-        if(connectionIDS.containsValue(connectionId) && msg!=null){  //sanity check
-
+        if(connectionIDS.containsKey(connectionId) && msg!=null){  //input check
+            connectionIDS.get(connectionId).send((T)msg);
+            return true;
         }
         return false;
     }
+
 
     @Override
     public void broadcast(Object msg) {
