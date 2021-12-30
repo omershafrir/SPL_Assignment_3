@@ -2,25 +2,18 @@ package bgu.spl.net.srv;
 
 import bgu.spl.net.info.impl.echo.*;
 
-import java.io.BufferedReader;
-import java.io.BufferedWriter;
-import java.io.InputStreamReader;
-import java.io.OutputStreamWriter;
-import java.net.Socket;
+import java.net.InetAddress;
+import java.net.UnknownHostException;
 import java.util.function.Supplier;
 
 public class MainTest {
-    public static void main(String []args) {
-
-
-
-
-        Server<String> rockerServer = Server.threadPerClient(6666 , () -> new EchoProtocol(), () -> new LineMessageEncoderDecoder());
-            Thread x = new Thread(()->rockerServer.serve());
-            x.start();
-
-
-
+    public static void main(String []args) throws UnknownHostException {
+        System.out.println(InetAddress.getLocalHost());
+        try(Server<String> rockerServer = Server.threadPerClient(6666 , () -> new EchoProtocol(), () -> new LineMessageEncoderDecoder());){
+            rockerServer.serve();
+        }    catch(Exception e){
+            e.printStackTrace();
+        }
 
     }
 
