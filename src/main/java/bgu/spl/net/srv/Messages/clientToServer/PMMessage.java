@@ -25,4 +25,9 @@ public class PMMessage extends Message {
     public String getDateAndTime() {
         return dateAndTime;
     }
+
+    @Override
+    public String toString() {
+        return opcode+username+(char)0+content+(char)0+dateAndTime+(char)0;
+    }
 }

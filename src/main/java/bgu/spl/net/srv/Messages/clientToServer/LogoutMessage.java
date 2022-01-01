@@ -6,4 +6,9 @@ public class LogoutMessage extends Message {
     public LogoutMessage() {
         super((short)3);
     }
+
+    @Override
+    public String toString() {
+        return ""+opcode;
+    }
 }

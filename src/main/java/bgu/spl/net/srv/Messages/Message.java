@@ -8,7 +8,7 @@ public abstract class Message {
     public Message(short opcode) {
         this.opcode = opcode;
     }
-//    public abstract Vector<byte> toArray();
+    public abstract String toString();
 
 
 }

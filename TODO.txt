@@ -1,6 +1,10 @@
 TO VERIFY:
 
 1. connectionsImpl : boolean send ? what boolean means.
+2. encdecimpl does not use methods bytesToShort() & shortToBytes at all. okay?
+3. when catching
+4. ';' symbol in the end of every message?
+
 
 TO REMEMBER:
-1. call dsiconnect(int connectionId) when calling logout()/
+1. call disconnect(int connectionId) when calling logout()/

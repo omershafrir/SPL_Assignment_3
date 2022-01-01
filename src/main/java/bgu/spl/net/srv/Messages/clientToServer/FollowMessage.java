@@ -20,4 +20,9 @@ public class FollowMessage extends Message {
     public String getUsername() {
         return username;
     }
+
+    @Override
+    public String toString() {
+        return opcode+command+username;
+    }
 }

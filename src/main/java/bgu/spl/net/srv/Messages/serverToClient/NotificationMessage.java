@@ -9,7 +9,7 @@ public class NotificationMessage extends Message {
 
     public NotificationMessage(byte notificationType, String postingUser, String content) {
         super((short)9);
-        this.notificationType = notificationType;
+        this.notificationType = notificationType;       // 0 if type = PM , 1 if type = public message
         this.postingUser = postingUser;
         this.content = content;
     }
@@ -24,5 +24,10 @@ public class NotificationMessage extends Message {
 
     public String getContent() {
         return content;
+    }
+
+    @Override
+    public String toString() {
+        return opcode+notificationType+postingUser+(char)0+content+(char)0;
     }
 }

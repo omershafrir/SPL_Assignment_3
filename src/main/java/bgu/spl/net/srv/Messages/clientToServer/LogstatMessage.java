@@ -6,4 +6,9 @@ public class LogstatMessage extends Message {
     public LogstatMessage() {
         super((short)7);
     }
+
+    @Override
+    public String toString() {
+        return ""+opcode;
+    }
 }

@@ -26,4 +26,8 @@ public class LoginMessage extends Message {
         return captcha;
     }
 
+    @Override
+    public String toString() {
+        return opcode+username+(char)0+password+(char)0+captcha;
+    }
 }

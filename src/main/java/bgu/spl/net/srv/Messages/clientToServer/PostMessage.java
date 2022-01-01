@@ -13,4 +13,9 @@ public class PostMessage extends Message {
     public String getContent() {
         return content;
     }
+
+    @Override
+    public String toString() {
+        return opcode+content+(char)0;
+    }
 }

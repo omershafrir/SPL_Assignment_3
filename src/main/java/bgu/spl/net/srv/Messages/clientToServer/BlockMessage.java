@@ -13,4 +13,9 @@ public class BlockMessage extends Message {
     public String getUsername() {
         return username;
     }
+
+    @Override
+    public String toString() {
+        return opcode+username;
+    }
 }

@@ -13,4 +13,9 @@ public class ERRORMessage extends Message {
     public int getMessageOpcode() {
         return messageOpcode;
     }
+
+    @Override
+    public String toString() {
+        return ""+opcode+messageOpcode;
+    }
 }
