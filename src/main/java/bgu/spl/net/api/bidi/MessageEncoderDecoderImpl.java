@@ -85,18 +85,18 @@ public class MessageEncoderDecoderImpl implements MessageEncoderDecoder<String> 
         }
     }
 
-//    private Class<? extends Message> getType(String msg) {
-//        return map.get((short)msg.charAt(0));
-//    }
-//
-//    public Message buildMessage(String msg) {
-//        Message output = null;
-//        Class<? extends Message> outputClass = getType(msg);
-//        try {
-//            output = outputClass.newInstance();
-//        } catch (Exception e) {
-//            e.printStackTrace();
-//        }
-//        return output;
-//    }
+    private Class<? extends Message> getType(String msg) {
+        return map.get((short)msg.charAt(0));
+    }
+
+    public Message buildMessage(String msg) {
+        Message output = null;
+        Class<? extends Message> outputClass = getType(msg);
+        try {
+            output = outputClass.newInstance();
+        } catch (Exception e) {
+            e.printStackTrace();
+        }
+        return output;
+    }
 }
