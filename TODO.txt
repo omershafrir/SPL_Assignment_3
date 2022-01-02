@@ -8,3 +8,4 @@ TO VERIFY:
 
 TO REMEMBER:
 1. call disconnect(int connectionId) when calling logout()/
+2. TODO: fix decoding of ACKMessage & ERRORMessage when given argument messageOpcode is 2 digits.

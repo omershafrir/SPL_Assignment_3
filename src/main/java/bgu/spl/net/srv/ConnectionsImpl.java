@@ -26,7 +26,7 @@ public class ConnectionsImpl<T> implements Connections {
             //this client  needs to get the message
             ConnectionHandler<T> toReceive = connectionIDS.get(connectionId);
             //encode message
-
+            toReceive.send((T)(msg));
             //put the encoded message in the CH socket
             //
 

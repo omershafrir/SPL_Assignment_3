@@ -1,10 +1,12 @@
 package bgu.spl.net.srv;
 
 import bgu.spl.net.api.MessageEncoderDecoder;
-import bgu.spl.net.api.bidi.MessageEncoderDecoderImpl;
+//import bgu.spl.net.api.MessageEncoderDecoderImpl;
+import bgu.spl.net.api.MessageEncoderDecoderImpl;
 import bgu.spl.net.srv.Messages.Message;
 import bgu.spl.net.srv.Messages.clientToServer.*;
-import bgu.spl.net.srv.Messages.serverToClient.*;
+import bgu.spl.net.srv.Messages.serverToClient.ACKMessage;
+import bgu.spl.net.srv.Messages.serverToClient.ERRORMessage;
 import bgu.spl.net.srv.Messages.serverToClient.NotificationMessage;
 
 import java.net.UnknownHostException;
@@ -24,7 +26,7 @@ public class MainTest {
         MessageEncoderDecoderImpl encdec = new MessageEncoderDecoderImpl();
 //
         Message[] array = new Message[12];
-        array[0] = new RegisterMessage("omer" , "123" , "3/10");
+        array[0] = new RegisterMessage("om" , "1" , "3");
         array[1] = new LoginMessage("omer" , "123" , (byte)1);
         array[2] = new LogoutMessage();
         array[3] = new FollowMessage((byte)1,"patidi");
@@ -32,23 +34,52 @@ public class MainTest {
         array[5] = new PMMessage("0tolerance" , "yoyohey" , "3,10,989");
         array[6] = new LogstatMessage();
         array[7] = new StatMessage(null);
-        array[8] = new NotificationMessage((byte)0 , "R0CKER" , "good_evening");
-        array[9] = new ACKMessage((short)5 , null);
-        array[10] = new ERRORMessage((short)2);
+        array[8] = new NotificationMessage((byte)2 , "R0CKER" , "good_evening");
+        array[9] = new ACKMessage((short)10 , null);
+        array[10] = new ERRORMessage((short)7);
         array[11] = new BlockMessage("POPER");
 
-        for (int i=0 ; i< array.length ; i++){
-            Message m = array[i];
-            System.out.println("Message type is : "+m.getClass());
-            System.out.println("String after encoding: "+m);
-            System.out.println(Arrays.toString(encdec.encode(m.toString())));
-            System.out.print("String afteer decoding: ");
-            testEncode(encdec.encode(m.toString()) , encdec);
-            System.out.println("---------------------------------------------------");
+
+
+
+
+
+//        Message m = new ACKMessage((short)3,null);
+//        Message k = new RegisterMessage(""+opcode,"","");
+
+        for(int i = 0; i < 12; i++) {
+            byte[] encoded = encdec.encode(array[i]);
+            System.out.println(array[i]+" encoded: "+ Arrays.toString(encoded));
+            decode(encoded , encdec);
         }
 
-        Message msg = encdec.buildMessage("2 omer");
-        System.out.println(msg.getClass());
+
+//        System.out.println(Arrays.toString((array[0]).encode()));
+
+//       byte[] bbb=encdec.encode(array[3].toString());
+//        System.out.println(Arrays.toString(bbb));
+//       testEncode(bbb,encdec);
+//        for (int i=0 ;i < bbb.length ; i++){
+//            System.out.println(enc);
+//        }
+//        for (int i=0 ; i< array.length ; i++){
+//            Message m = array[i];
+//            System.out.println("Message type is : "+m.getClass());
+//            System.out.println("String after encoding: "+m);
+//            System.out.println(Arrays.toString(encdec.encode(m.toString())));
+//            System.out.print("String afteer decoding: ");
+//            testEncode(encdec.encode(m.toString()) , encdec);
+//            System.out.println("---------------------------------------------------");
+//        }
+//        MessageEncDec tool = new MessageEncDec();
+//        System.out.println("MESSAGE: "+tool.toMessage(tool.toString(array[0])));
+
+//
+//        for (int i=0 ; i< array.length ; i++) {
+//            System.out.println("String:  "+tool.toString(array[i]));
+//            System.out.println("MESSAGE: "+tool.toMessage(tool.toString(array[i])));
+//            System.out.println("**************************************************");
+//        }
 
 
 
@@ -84,10 +115,10 @@ public class MainTest {
         testEncode(arr1 , encdec);
         **/
     }
-    public static void testEncode(byte[] arr , MessageEncoderDecoder<String> encdec){
+    public static void decode(byte[] arr , MessageEncoderDecoder<Message> encdec){
         for (int i=0 ; i< arr.length ; i++){
-            String res;
-            res = (String) encdec.decodeNextByte(arr[i]);
+            Message res;
+            res = (Message) encdec.decodeNextByte(arr[i]);
             if (res != null)
                 System.out.println(res);
         }

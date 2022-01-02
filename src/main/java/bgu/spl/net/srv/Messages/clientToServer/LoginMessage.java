@@ -2,6 +2,8 @@ package bgu.spl.net.srv.Messages.clientToServer;
 
 import bgu.spl.net.srv.Messages.Message;
 
+import java.nio.charset.StandardCharsets;
+
 public class LoginMessage extends Message {
     private String username;
     private String password;
@@ -30,4 +32,8 @@ public class LoginMessage extends Message {
     public String toString() {
         return opcode+username+(char)0+password+(char)0+captcha;
     }
+
+    @Override
+    public byte[] encode() {
+        return (""+0+opcode+username+(char)0+password+(char)0+captcha).getBytes(StandardCharsets.UTF_8);    }
 }

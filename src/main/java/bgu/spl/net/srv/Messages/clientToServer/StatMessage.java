@@ -2,6 +2,7 @@ package bgu.spl.net.srv.Messages.clientToServer;
 
 import bgu.spl.net.srv.Messages.Message;
 
+import java.nio.charset.StandardCharsets;
 import java.util.List;
 
 public class StatMessage extends Message {
@@ -19,6 +20,11 @@ public class StatMessage extends Message {
     @Override
     public String toString() {
         return opcode+listString()+(char)0;
+    }
+
+    @Override
+    public byte[] encode() {
+        return (""+0+opcode+listString()+(char)0).getBytes(StandardCharsets.UTF_8);
     }
 
     private String listString(){

@@ -2,6 +2,8 @@ package bgu.spl.net.srv.Messages.serverToClient;
 
 import bgu.spl.net.srv.Messages.Message;
 
+import java.nio.charset.StandardCharsets;
+
 public class NotificationMessage extends Message {
     private byte notificationType;
     private String postingUser;
@@ -28,6 +30,11 @@ public class NotificationMessage extends Message {
 
     @Override
     public String toString() {
-        return opcode+notificationType+postingUser+(char)0+content+(char)0;
+        return ""+0+opcode+notificationType+postingUser+'\0'+content+'\0';
+    }
+
+    @Override
+    public byte[] encode() {
+        return (""+0+opcode+notificationType+postingUser+'\0'+content+'\0').getBytes(StandardCharsets.UTF_8);
     }
 }
