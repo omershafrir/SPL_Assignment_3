@@ -34,6 +34,8 @@ public class MessageEncoderDecoderImpl implements MessageEncoderDecoder<String> 
     }
 
     @Override
+    // don't we need to check the type of message and fill in the first 2 bytes
+    // with the proper "opcode"?
     public String decodeNextByte(byte nextByte) {
         if (nextByte == '\n') {
             return popString();
@@ -44,6 +46,8 @@ public class MessageEncoderDecoderImpl implements MessageEncoderDecoder<String> 
 
 
     @Override
+    // do we need to return the message length?
+    // or this kind of decoding doesn't need it
     public byte[] encode(String message) {
         return (message + "\n").getBytes(); //uses utf8 by default
     }
@@ -52,12 +56,11 @@ public class MessageEncoderDecoderImpl implements MessageEncoderDecoder<String> 
         if (len >= bytes.length) {
             bytes = Arrays.copyOf(bytes, len * 2);
         }
-
         bytes[len++] = nextByte;
     }
 
     private String popString() {
-        //notice that we explicitly requesting that the string will be decoded from UTF-8
+        //notice that we explicitly request that the string will be decoded from UTF-8
         //this is not actually required as it is the default encoding in java.
         replaceZeros();
         String result = new String(bytes, 0, len, StandardCharsets.UTF_8);
