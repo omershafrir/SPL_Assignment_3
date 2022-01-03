@@ -10,6 +10,7 @@ import bgu.spl.net.srv.Messages.serverToClient.ERRORMessage;
 import bgu.spl.net.srv.Messages.serverToClient.NotificationMessage;
 
 import java.net.UnknownHostException;
+import java.nio.charset.StandardCharsets;
 import java.util.*;
 
 public class MainTest {
@@ -34,11 +35,20 @@ public class MainTest {
         array[5] = new PMMessage("0tolerance" , "yoyohey" , "3,10,989");
         array[6] = new LogstatMessage();
         array[7] = new StatMessage(null);
-        array[8] = new NotificationMessage((byte)2 , "R0CKER" , "good_evening");
-        array[9] = new ACKMessage((short)10 , null);
-        array[10] = new ERRORMessage((short)7);
+        array[8] = new NotificationMessage((byte)10 , "R0CKER" , "good_evening");
+        array[9] = new ACKMessage((short)12 , null);
+        array[10] = new ERRORMessage((short)12);
         array[11] = new BlockMessage("POPER");
 
+
+//        short s = 12;
+//        short ss = (short) (0<<8 | 4 & 0xFF);
+//        byte[] a = {0 , 2 , 3 , 5 };
+//        byte[] b = {0 , -2 , -3 , -5 };
+//        byte[] c = {0 , 1 , 10 , 100 };
+//        Vector<byte[]> vec = new Vector<>();
+//        vec.add(a); vec.add(b); vec.add(c);
+//        System.out.println(Arrays.toString(Message.mergeArrays(vec)));
 
 
 
@@ -142,7 +152,13 @@ public class MainTest {
         }
         return output;
     }
-
+    public static byte[] shortToBytes(short num)
+    {
+        byte[] bytesArr = new byte[2];
+        bytesArr[0] = (byte)((num >> 8) & 0xFF);
+        bytesArr[1] = (byte)(num & 0xFF);
+        return bytesArr;
+    }
 }
 
 

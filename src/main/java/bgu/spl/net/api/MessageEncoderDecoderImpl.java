@@ -213,7 +213,7 @@ public class MessageEncoderDecoderImpl implements MessageEncoderDecoder<Message>
         }
 
         String content = new String(bytes, indexStart,curr - indexStart,StandardCharsets.UTF_8);
-        return new NotificationMessage((byte)(bytes[2]-48),username,content);
+        return new NotificationMessage((byte) (bytes[2]-48),username,content);
     }
 
     private Message buildACK(){

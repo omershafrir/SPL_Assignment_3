@@ -24,5 +24,21 @@ public abstract class Message {
         bytesArr[1] = (byte) (num & 0xFF);
         return bytesArr;
     }
+    public static byte[] mergeArrays(Vector<byte[]> vec){
+        int size = 0;
+        for (byte[] arr : vec){
+            size += arr.length;
+        }
+        byte[] output = new byte[size];
+        int index = 0;
+        for(int i=0 ; i < vec.size() ; i++){
+            byte[] currArr = vec.elementAt(i);
+            for (int j=0 ; j< currArr.length ; j++){
+                output[index] = currArr[j];
+                index++;
+            }
+        }
+        return output;
+    }
 
 }

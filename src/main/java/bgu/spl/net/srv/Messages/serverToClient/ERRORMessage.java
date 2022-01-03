@@ -19,7 +19,7 @@ public class ERRORMessage extends Message {
     @Override
     public String toString() {
         if(messageOpcode <= (short) 9){
-            return (""+opcode+(char)0+messageOpcode);
+            return (""+opcode+'0'+messageOpcode);
         }
         else
             return (""+opcode+messageOpcode);
@@ -28,7 +28,7 @@ public class ERRORMessage extends Message {
     @Override
     public byte[] encode() {
         if(messageOpcode <= (short) 9){
-            return (""+opcode+(char)0+messageOpcode).getBytes(StandardCharsets.UTF_8);
+            return (""+opcode+'0'+messageOpcode).getBytes(StandardCharsets.UTF_8);
         }
         else
             return (""+opcode+messageOpcode).getBytes(StandardCharsets.UTF_8);
