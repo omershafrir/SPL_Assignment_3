@@ -6,24 +6,24 @@ import bgu.spl.net.srv.Messages.Message;
 import bgu.spl.net.srv.Messages.clientToServer.*;
 import bgu.spl.net.srv.Messages.serverToClient.*;
 import bgu.spl.net.srv.Server;
+import bgu.spl.net.srv.User;
 
 
 public class BidiMessagingProtocolImpl implements BidiMessagingProtocol<Message>{
 
-    private Server<?> server;
-    //using connection DS as the logedin users in DB
+//    private Server server;
+    //using connection DS as the logged in users in DB
     private ConnectionsImpl connections;
     private ConnectionHandler connectionHandler;
     private boolean shouldTerminate = false;
 
-    public BidiMessagingProtocolImpl(Server server,ConnectionsImpl connections, ConnectionHandler connectionHandler){
-        this.server = server;
-        this.connections = connections;
+    public BidiMessagingProtocolImpl(ConnectionHandler connectionHandler){
         this.connectionHandler = connectionHandler;
     }
 
     @Override
     public void start(int connectionId, Connections<Message> connections) {
+        this.connections = (ConnectionsImpl) connections;
 
     }
 
@@ -41,11 +41,11 @@ public class BidiMessagingProtocolImpl implements BidiMessagingProtocol<Message>
             processRegister((RegisterMessage)message);
         }
         else if (message instanceof LoginMessage){
-
+            processLogin((LoginMessage)message);
 
         }
         else if (message instanceof LogoutMessage){
-
+            processLogout();
         }
         else if (message instanceof FollowMessage){
 
@@ -85,21 +85,64 @@ public class BidiMessagingProtocolImpl implements BidiMessagingProtocol<Message>
 
     private void processRegister(RegisterMessage message){
         //check if the username already registered - if yes return an error
-        if(this.connections.isLogedIn(message.getUsername(),message.getPassword(),this.connectionHandler)){
-
+        if(connections.isRegistered(message.getUsername())){
+            connections.send(connections.getUserID(message.getUsername()), new ERRORMessage((short)1));
+        }
+        else{
+            connections.register(message, connectionHandler);
+            connections.send(connections.getUserID(message.getUsername()), new ACKMessage((short)1,null));
         }
 
     }
 
     private void processLogin(LoginMessage message){
-
+        //check if already logged in
+        if(!connections.isRegistered(message.getUsername()) || connections.isLogedIn(message.getUsername())
+                || message.getCaptcha() == (char)0){
+            connections.send(connections.getUserID(message.getUsername()), new ERRORMessage((short)2));
+        }
+        else{
+            connections.login(message);
+            connections.send(connections.getUserID(message.getUsername()), new ACKMessage((short)2,null));
+        }
     }
 
 
-    private void processLogout(LogoutMessage message){
-
+    private void processLogout(){
+        if(!connections.thereIsSomeOneHere()){
+            connections.send(connections.getUserID(connectionHandler), new ERRORMessage((short)3));
+        }
+        else{ //need to send the server to connect, client leaves after getting an ACK message
+            connections.send(connections.getUserID(connectionHandler), new ACKMessage((short)3,null));
+        }
     }
     private void processFollow(FollowMessage message){
+        //if follow failed / !logged in ERROR message
+        if(!connections.isLogedIn(message.getUsername())){
+            connections.send(connections.getUserID(message.getUsername()), new ERRORMessage((short)4));
+        }
+        else{
+            switch (message.getCommand()){
+                //follow
+                case (0):
+                    if(!connections.isFollowing(message,connections.getUserID(connectionHandler))){
+                        connections.follow(message);
+                    }
+                    else{
+                        connections.send(connections.getUserID(message.getUsername()), new ERRORMessage((short)4));
+                    }
+                    break;
+                //unfollow
+                case (1):
+                    if(connections.isFollowing(message,connections.getUserID(connectionHandler))){
+                        connections.unfollow(message);
+                    }
+                    else{
+                        connections.send(connections.getUserID(message.getUsername()), new ERRORMessage((short)4));
+                    }
+                    break;
+            }
+        }
 
     }
     private void processPost(PostMessage message){
