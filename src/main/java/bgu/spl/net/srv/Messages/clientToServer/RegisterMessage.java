@@ -31,7 +31,7 @@ public class RegisterMessage extends Message {
 
     @Override
     public String toString() {
-        return opcode+username+(char)0+password+(char)0+birthday+(char)0;
+        return opcode+username+'\0'+password+'\0'+birthday+'\0';
     }
 
 //    @Override

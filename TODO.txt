@@ -9,3 +9,4 @@ TO VERIFY:
 TO REMEMBER:
 1. call disconnect(int connectionId) when calling logout()/
 2. TODO: fix decoding of ACKMessage & ERRORMessage when given argument messageOpcode is 2 digits.
+3. TODO:finish the register process - put handler in the connectionIDS using "addHandler" function
