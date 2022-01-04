@@ -34,7 +34,8 @@ public class Reactor<T> implements Server<T> {
         this.port = port;
         this.protocolFactory = protocolFactory;
         this.readerFactory = readerFactory;
-        this.connections = new ConnectionsImpl<>(this);
+        this.connections = ConnectionsImpl.getInstance();
+        connections.setServer(this);
     }
 
     @Override

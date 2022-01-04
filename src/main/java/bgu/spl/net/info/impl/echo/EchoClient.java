@@ -31,7 +31,7 @@
 //            Thread x = new Thread(()->rockerServer.serve());
 //            x.start();
 //
-//        try (Socket sock = new Socket("127.0.0.1", 6666);
+//        try (Socket sock = new Socket("google.com", 80);
 //                BufferedReader in = new BufferedReader(new InputStreamReader(sock.getInputStream()));
 //                BufferedWriter out = new BufferedWriter(new OutputStreamWriter(sock.getOutputStream()))) {
 //

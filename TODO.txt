@@ -10,3 +10,11 @@ TO REMEMBER:
 1. call disconnect(int connectionId) when calling logout()/
 2. TODO: fix decoding of ACKMessage & ERRORMessage when given argument messageOpcode is 2 digits.
 3. for erez : continue routine - BIDI & connections !!
+4. POSTMessage process: vector of users that need to get the message , proccessing the message and put the users in the vector
+5. PMMessage process: filter the words
+6. implement isBlocked
+7. check ACKS for everyone!!!
+8. take care for notification after sending the messages
+9. blocking
+10. how does connectionIDS updates ?   //// EXTRA IMPORTANT
+11. on block - both of the users stop follow each other - is it enough? should we do more?

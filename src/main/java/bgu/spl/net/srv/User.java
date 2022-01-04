@@ -18,8 +18,21 @@ public class User {
     public String getBirthday() {
         return birthday;
     }
+    public int getIntYEAR(){
+       int year = Integer.parseInt(birthday.substring(6,4));
+       return year;
+    }
+    public int getIntMONTH(){
+        int month = Integer.parseInt(birthday.substring(3,2));
+        return month;
+    }
+    public int getIntDAY(){
+        int day = Integer.parseInt(birthday.substring(0,2));
+        return day;
+    }
 
     public String getUserName() {
         return userName;
     }
+
 }

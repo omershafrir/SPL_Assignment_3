@@ -23,7 +23,6 @@ public class MessageEncoderDecoderImpl implements MessageEncoderDecoder<Message>
         if (nextByte == '\n') {
             return buildMessage();
         }
-
         pushByte(nextByte);
         return null; //not a line yet
     }

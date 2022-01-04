@@ -11,9 +11,20 @@ import bgu.spl.net.srv.Messages.serverToClient.NotificationMessage;
 
 import java.net.UnknownHostException;
 import java.nio.charset.StandardCharsets;
+import java.time.LocalDate;
+import java.time.Period;
+import java.time.chrono.ChronoLocalDate;
 import java.util.*;
 
 public class MainTest {
+
+    public static int calculateAge(LocalDate birthDate, LocalDate currentDate) {
+        if ((birthDate != null) && (currentDate != null)) {
+            return Period.between(birthDate, currentDate).getYears();
+        } else {
+            return 0;
+        }
+    }
     public static void main(String []args) throws UnknownHostException {
         /**
         System.out.println(InetAddress.getLocalHost());
@@ -24,21 +35,36 @@ public class MainTest {
         }
          **/
 
-        MessageEncoderDecoderImpl encdec = new MessageEncoderDecoderImpl();
+        System.out.println(calculateAge(LocalDate.of(1993,11,3),LocalDate.now()));
+
+//        MessageEncoderDecoderImpl encdec = new MessageEncoderDecoderImpl();
+////
+//        Message[] array = new Message[12];
+//        array[0] = new RegisterMessage("om" , "1" , "3");
+//        array[1] = new LoginMessage("omer" , "123" , (byte)1);
+//        array[2] = new LogoutMessage();
+//        array[3] = new FollowMessage((byte)1,"patidi");
+//        array[4] = new PostMessage("yoyo watup");
+//        array[5] = new PMMessage("0tolerance" , "yoyohey" , "3,10,989");
+//        array[6] = new LogstatMessage();
+//        array[7] = new StatMessage(null);
+//        array[8] = new NotificationMessage((byte)10 , "R0CKER" , "good_evening");
+//        array[9] = new ACKMessage((short)12 , null);
+//        array[10] = new ERRORMessage((short)12);
+//        array[11] = new BlockMessage("POPER");
 //
-        Message[] array = new Message[12];
-        array[0] = new RegisterMessage("om" , "1" , "3");
-        array[1] = new LoginMessage("omer" , "123" , (byte)1);
-        array[2] = new LogoutMessage();
-        array[3] = new FollowMessage((byte)1,"patidi");
-        array[4] = new PostMessage("yoyo watup");
-        array[5] = new PMMessage("0tolerance" , "yoyohey" , "3,10,989");
-        array[6] = new LogstatMessage();
-        array[7] = new StatMessage(null);
-        array[8] = new NotificationMessage((byte)10 , "R0CKER" , "good_evening");
-        array[9] = new ACKMessage((short)12 , null);
-        array[10] = new ERRORMessage((short)12);
-        array[11] = new BlockMessage("POPER");
+
+//        for(int i = 0; i < 12; i++) {
+//            byte[] encoded = encdec.encode(array[i]);
+//            System.out.println(array[i]+" encoded: "+ Arrays.toString(encoded));
+//            decode(encoded , encdec);
+//        }
+
+
+
+
+
+
 
 
 //        short s = 12;
@@ -51,20 +77,10 @@ public class MainTest {
 //        System.out.println(Arrays.toString(Message.mergeArrays(vec)));
 
 
-
-
+//        System.out.println(Arrays.toString((array[0]).encode()));
 
 //        Message m = new ACKMessage((short)3,null);
 //        Message k = new RegisterMessage(""+opcode,"","");
-
-        for(int i = 0; i < 12; i++) {
-            byte[] encoded = encdec.encode(array[i]);
-            System.out.println(array[i]+" encoded: "+ Arrays.toString(encoded));
-            decode(encoded , encdec);
-        }
-
-
-//        System.out.println(Arrays.toString((array[0]).encode()));
 
 //       byte[] bbb=encdec.encode(array[3].toString());
 //        System.out.println(Arrays.toString(bbb));

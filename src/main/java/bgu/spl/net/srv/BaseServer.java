@@ -27,7 +27,8 @@ public abstract class BaseServer<T> implements Server<T> {
         this.protocolFactory = protocolFactory;
         this.encdecFactory = encdecFactory;
 		this.sock = null;
-        this.connections = new ConnectionsImpl<>(this);
+        this.connections = ConnectionsImpl.getInstance();
+        connections.setServer(this);
     }
 
 
