@@ -156,8 +156,10 @@ public class Database {
         connectionIDS.remove(idOfSender);
         // remove loggedIn: ID -> User
         for(Map.Entry<Integer, User> user : loggedInUsers.entrySet()){
-            id = user.getKey();
-            toLogOut = user.getValue();
+            if(user.getKey().equals(idOfSender)) {
+                id = user.getKey();
+                toLogOut = user.getValue();
+            }
         }
         loggedInUsers.remove(id,toLogOut);
     }

@@ -107,8 +107,8 @@ public class BidiMessagingProtocolImpl implements BidiMessagingProtocol<Message>
     private void processLogin(LoginMessage message){
         //check if already logged in
         if(!database.isRegistered(message.getUsername(),message.getPassword()) || database.isLogedIn(message.getUsername())
-                || message.getCaptcha() == (char)0){
-            connections.send(database.getUserID(message.getUsername()), new ERRORMessage((short)2));
+                || message.getCaptcha() == (byte)0){
+            connections.send(database.getUserID(connectionHandler), new ERRORMessage((short)2));
         }
         else{
             database.login(message, idOfSender);
