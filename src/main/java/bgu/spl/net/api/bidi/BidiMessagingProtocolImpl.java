@@ -81,7 +81,7 @@ public class BidiMessagingProtocolImpl implements BidiMessagingProtocol<Message>
 
         }
         else{ //(message instanceof BlockMessage)
-
+            processBlock((BlockMessage) message);
         }
 
     }
@@ -94,7 +94,7 @@ public class BidiMessagingProtocolImpl implements BidiMessagingProtocol<Message>
 
     private void processRegister(RegisterMessage message){
         //check if the username already registered - if yes return an error
-        if(database.isRegistered(message.getUsername())){
+        if(database.isRegistered(message.getUsername(),message.getPassword())){
             connections.send(database.getUserID(message.getUsername()), new ERRORMessage((short)1));
         }
         else{
@@ -106,12 +106,12 @@ public class BidiMessagingProtocolImpl implements BidiMessagingProtocol<Message>
 
     private void processLogin(LoginMessage message){
         //check if already logged in
-        if(!database.isRegistered(message.getUsername()) || database.isLogedIn(message.getUsername())
+        if(!database.isRegistered(message.getUsername(),message.getPassword()) || database.isLogedIn(message.getUsername())
                 || message.getCaptcha() == (char)0){
             connections.send(database.getUserID(message.getUsername()), new ERRORMessage((short)2));
         }
         else{
-            database.login(message);
+            database.login(message, idOfSender);
             connections.send(database.getUserID(message.getUsername()), new ACKMessage((short)2,null));
         }
     }
@@ -123,6 +123,7 @@ public class BidiMessagingProtocolImpl implements BidiMessagingProtocol<Message>
         }
         else{ //need to send the server to connect, client leaves after getting an ACK message
             connections.send(idOfSender , new ACKMessage((short)3,null));
+            database.logout(idOfSender);
         }
     }
     private void processFollow(FollowMessage message){
@@ -177,6 +178,7 @@ public class BidiMessagingProtocolImpl implements BidiMessagingProtocol<Message>
             //TODO : create the vector
             //assuming I have a vector that holds the usernames that were mentioned in the message with
             // a @username, combined with the list of follower of ths SENDER - need to prevent doubles
+            // make sure that blocked people dont get in by any chance
 
             Vector<User> sendto = new Vector<>();
             //go through the vec and send the message to all users that need to get it
@@ -187,8 +189,11 @@ public class BidiMessagingProtocolImpl implements BidiMessagingProtocol<Message>
                     connections.send(idOfSender, new ERRORMessage((short)5));
                 }
                 else{ //success
-                    //add message to DATABASE
+                    // add message to DATABASE
                     database.addMessage(message,idOfSender);
+                    // send notification
+                    connections.send(idOfUser,new NotificationMessage((byte) 1 , database.getUserByID(idOfSender).getUserName(),message.getContent()));
+                    // send ACK
                     connections.send(idOfSender, new ACKMessage((short)5,null));
                 }
             }
@@ -196,20 +201,23 @@ public class BidiMessagingProtocolImpl implements BidiMessagingProtocol<Message>
         }
     }
     private void processPM(PMMessage message) {
-        if (!database.isLogedIn(idOfSender) || !database.isRegistered(message.getUsername())
+        if (!database.isLogedIn(idOfSender) || !database.isRegistered(database.getUserID(message.getUsername()))
                 || !database.isFollowing(message.getUsername(), idOfSender)) {
             connections.send(idOfSender, new ERRORMessage((short) 6));
         } else { // the sender is logged in
-
             //TODO : filter the words
+
             PMMessage filteredMessage = new PMMessage("username", "content", "dateAndTime");
             int recipientID = database.getUserID(message.getUsername());
             boolean success = connections.send(recipientID, filteredMessage);
             if (!success) {
                 connections.send(idOfSender, new ERRORMessage((short)6));
             } else { //success
-                //add FILTERED message to DATABASE
+                // add FILTERED message to DATABASE
                 database.addMessage(filteredMessage, idOfSender);
+                // sending notification
+                connections.send(recipientID,new NotificationMessage((byte) 0 , database.getUserByID(idOfSender).getUserName(),message.getContent()));
+                // sending ACK
                 connections.send(idOfSender, new ACKMessage((short)6,null));
             }
         }
@@ -295,7 +303,7 @@ public class BidiMessagingProtocolImpl implements BidiMessagingProtocol<Message>
                     String numOfFollowersSTRING = String.valueOf(numOfFollowers);
                     String numOfPeopleIFollowSTRING = String.valueOf(numOfPeopleIFollow);
                     //send ACK
-                    connections.send(idOfSender, new ACKMessage((short)7,ageOfUserSTRING+" "+
+                    connections.send(idOfSender, new ACKMessage((short)8,ageOfUserSTRING+" "+
                             numOfPostsSTRING+" "+ numOfFollowersSTRING+" "+numOfPeopleIFollowSTRING));
                 }
             }
@@ -323,7 +331,7 @@ public class BidiMessagingProtocolImpl implements BidiMessagingProtocol<Message>
      * @param message
      */
     private void processBlock(BlockMessage message){
-        if(!database.isRegistered(message.getUsername())){
+        if(!database.isRegistered(database.getUserID(message.getUsername())) || !database.isLogedIn(idOfSender)){
             connections.send(idOfSender, new ERRORMessage((short)12));
         }
         else{ //username exists
@@ -332,6 +340,10 @@ public class BidiMessagingProtocolImpl implements BidiMessagingProtocol<Message>
             database.unfollow(message.getUsername(),idOfSender);
             int BlockedID = database.getUserID(message.getUsername());
             database.unfollow(Blocker.getUserName(), BlockedID);
+            // add to the DB of the blocker
+            database.block(idOfSender, message.getUsername());
+            // send ACK
+            connections.send(idOfSender, new ACKMessage((short)12,null));
         }
 
     }

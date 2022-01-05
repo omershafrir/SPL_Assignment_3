@@ -22,9 +22,11 @@ public class Database {
     private static ConnectionsImpl connections = ConnectionsImpl.getInstance();
     private HashMap<Integer, User> loggedInUsers;   ////////////holds the logged in members
     private HashMap<Integer, User> registeredUsers;
-    private HashMap<User, LinkedList<User>> following;
+    private HashMap<User, Vector<User>> following;
+    private HashMap<User, Vector<String>> blockerToBlocked;
     private HashMap<User, Vector<Message>> postAndPMdataBase;
     private HashMap<Integer,ConnectionHandler<Message>> connectionIDS;
+
     // constructor:
     private Database(){
         loggedInUsers = new HashMap<>();
@@ -32,6 +34,7 @@ public class Database {
         following = new HashMap<>();
         postAndPMdataBase = new HashMap<>();
         connectionIDS = connections.getConnectionIDS();
+        blockerToBlocked = new HashMap<>();
     }
     public static Database getInstance(){
         return instance;
@@ -85,10 +88,10 @@ public class Database {
         }
         return false;
     }
-    public boolean isRegistered(String userName){
+    public boolean isRegistered(String username ,String password){
         //go through the active users DB and search for the specific user
         for(User exists : registeredUsers.values()){
-            if (exists.getUserName().equals(userName))
+            if (exists.getUserName().equals(username) && exists.getPassword().equals(password) )
                 return true;
         }
         return false;
@@ -122,29 +125,33 @@ public class Database {
         registeredUsers.put(id,toRegister);
     }
     // Login:
-    public void login(LoginMessage message){
+    public void login(LoginMessage message , int idOfSender){
         Integer id = -1;
         User toLogIn = null;
-        for(Map.Entry<Integer, User> user : loggedInUsers.entrySet()){
-            if(user.getValue().getUserName().equals(message.getUsername())) {
+        for(Map.Entry<Integer, User> user : registeredUsers.entrySet()){
+            if(user.getValue().getUserName().equals(message.getUsername()) && user.getValue().getPassword().equals(message.getPassword())) {
                 id = user.getKey();
                 toLogIn = user.getValue();
             }
         }
-        loggedInUsers.put(id,toLogIn);
+        registeredUsers.remove(id,toLogIn);
+        registeredUsers.put(idOfSender,toLogIn);
+        loggedInUsers.put(idOfSender,toLogIn);
 
     }
 
-
-
-    public void logout(){
+    // Logout:
+    public void logout(int idOfSender){
         Integer id = -1;
-        User toLogIn = null;
+        User toLogOut = null;
+        // remove ID -> CH
+        connectionIDS.remove(idOfSender);
+        // remove loggedIn: ID -> User
         for(Map.Entry<Integer, User> user : loggedInUsers.entrySet()){
             id = user.getKey();
-            toLogIn = user.getValue();
+            toLogOut = user.getValue();
         }
-        loggedInUsers.remove(id,toLogIn);
+        loggedInUsers.remove(id,toLogOut);
     }
 
 
@@ -152,8 +159,8 @@ public class Database {
     public boolean follow(FollowMessage message, Integer idOfSender){
         //sender wants to FOLLOW message.getname
         User sender = registeredUsers.get(idOfSender);
-        LinkedList<User> followingList = new LinkedList<>();
-        for(Map.Entry<User, LinkedList<User>> user : following.entrySet()){
+        Vector<User> followingList = new Vector<User>();
+        for(Map.Entry<User, Vector<User>> user : following.entrySet()){
             if(user.getKey().getUserName().equals(message.getUsername())) {
                 user.getValue().add(sender);
                 followingList = user.getValue();
@@ -164,8 +171,8 @@ public class Database {
     public boolean unfollow(String username, Integer idOfSender){
         //sender wants to UNFOLLOW message.getname
         User sender = registeredUsers.get(idOfSender);
-        LinkedList<User> followingList = new LinkedList<>();
-        for(Map.Entry<User, LinkedList<User>> user : following.entrySet()){
+        Vector<User> followingList = new Vector<User>();
+        for(Map.Entry<User, Vector<User>> user : following.entrySet()){
             if(user.getKey().getUserName().equals(username)) {
                 user.getValue().remove(sender);
                 followingList = user.getValue();
@@ -173,11 +180,9 @@ public class Database {
         }
         return !followingList.contains(sender);
     }
-
-
     public boolean isFollowing(String username, Integer idOfSender){
         User sender = registeredUsers.get(idOfSender);
-        for(Map.Entry<User, LinkedList<User>> user : following.entrySet()){
+        for(Map.Entry<User, Vector<User>> user : following.entrySet()){
             if(user.getKey().getUserName().equals(username)) {
                 for (User toFind: user.getValue()){
                     if (toFind.equals(sender)){
@@ -228,9 +233,9 @@ public class Database {
     }
     public int numOfFollowers(User user){
         int output = 0;
-        for(Map.Entry<User, LinkedList<User>> userToMessage : following.entrySet()){
+        for(Map.Entry<User, Vector<User>> userToMessage : following.entrySet()){
             if(userToMessage.getKey().equals(user)){
-                LinkedList<User> tocheck = userToMessage.getValue();
+                Vector<User> tocheck = userToMessage.getValue();
                 for (User u : tocheck){
                     output++;
                 }
@@ -242,9 +247,9 @@ public class Database {
     }
     public int numOfPeopleIFollow(User user){
         int output = 0;
-        for(Map.Entry<User, LinkedList<User>> userToMessage : following.entrySet()){
+        for(Map.Entry<User, Vector<User>> userToMessage : following.entrySet()){
                 // get the followers vec
-                LinkedList<User> tocheck = userToMessage.getValue();
+                Vector<User> tocheck = userToMessage.getValue();
                 for (User u : tocheck){
                     // for each USER see if it is me - that means that i follow someone
                     if(u.equals(user))
@@ -254,11 +259,26 @@ public class Database {
         return output;
     }
 
-    // Blocked
+    // Blocked:
     public boolean isBlocked(int idOfBlocker, String Blocked){
-        //TODO : the blocked users SHOULD NOT be on the following list of the Blocker
-        return true;
+        User Blocker = getUserByID(idOfBlocker);
+        return blockerToBlocked.get(Blocker).contains(Blocked);
     }
+    public void block(int idOfBlocker, String Blocked){
+        User Blocker = getUserByID(idOfBlocker);
+        // The first block done for this user
+        if(!blockerToBlocked.containsKey(Blocker)){
+            Vector<String> blockedVec = new Vector<String>();
+            blockedVec.add(Blocked);
+            blockerToBlocked.put(Blocker,blockedVec);
+        }
+        else{  //the second and on
+            Vector<String> blockedVec = blockerToBlocked.get(Blocker);
+            blockedVec.add(Blocked);
+        }
+    }
+
+
 
 
 }

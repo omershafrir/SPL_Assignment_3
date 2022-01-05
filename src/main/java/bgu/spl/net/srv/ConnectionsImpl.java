@@ -16,11 +16,7 @@ public class ConnectionsImpl<T> implements Connections {
     private Vector<ConnectionHandler<T>> connectionsHandlerVector;  //////////// have to be updated, will indicate the loggedin status
     private static ConnectionsImpl instance = new ConnectionsImpl();
     private static int connectionIdCounter = 0;
-    private HashMap<Integer,ConnectionHandler<T>> connectionIDS;
-//    private HashMap<Integer, User> loggedInUsers;   ////////////holds the logged in members
-//    private HashMap<Integer, User> registeredUsers;
-//    private HashMap<User, LinkedList<User>> following;
-//    private HashMap<User, T> postAndPMdataBase;
+    private volatile HashMap<Integer,ConnectionHandler<T>> connectionIDS;
 
 
     public HashMap<Integer, ConnectionHandler<T>> getConnectionIDS() {
@@ -31,9 +27,6 @@ public class ConnectionsImpl<T> implements Connections {
         this.server = null;
         this.connectionsHandlerVector = new Vector<>();
         this.connectionIDS = new HashMap<>();
-//        this.loggedInUsers = new HashMap<>();
-//        this.registeredUsers = new HashMap<>();
-//        this.following = new HashMap<>();
     }
     public void setServer(Server<T> server){
         this.server = server;
@@ -47,7 +40,6 @@ public class ConnectionsImpl<T> implements Connections {
     public boolean send(int connectionId, Object msg) {
         ConnectionHandler<T> toSend =  connectionIDS.get(connectionId);
         toSend.send((T)msg);
-
         return true;
     }
 

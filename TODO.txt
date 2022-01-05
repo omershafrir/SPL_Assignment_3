@@ -12,9 +12,9 @@ TO REMEMBER:
 3. for erez : continue routine - BIDI & connections !!
 4. POSTMessage process: vector of users that need to get the message , proccessing the message and put the users in the vector
 5. PMMessage process: filter the words
-6. implement isBlocked
-7. check ACKS for everyone!!!
-8. take care for notification after sending the messages
-9. blocking
+6. implement isBlocked                 V
+7. check ACKS for everyone!!!          V
+8. take care for notification after sending the messages      V
+9. blocking                            V
 10. how does connectionIDS updates ?   //// EXTRA IMPORTANT
-11. on block - both of the users stop follow each other - is it enough? should we do more?
+11. on block - both of the users stop follow each other - is it enough? should we do more?    V
