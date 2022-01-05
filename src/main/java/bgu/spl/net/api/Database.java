@@ -19,7 +19,7 @@ import java.util.Vector;
 public class Database {
     // fields:
     private static Database instance = new Database();
-    private static ConnectionsImpl connections = ConnectionsImpl.getInstance();
+    private static ConnectionsImpl connections;
     private HashMap<Integer, User> loggedInUsers;   ////////////holds the logged in members
     private HashMap<Integer, User> registeredUsers;
     private HashMap<User, Vector<User>> following;
@@ -33,6 +33,7 @@ public class Database {
         registeredUsers = new HashMap<>();
         following = new HashMap<>();
         postAndPMdataBase = new HashMap<>();
+        connections = ConnectionsImpl.getInstance();
         connectionIDS = connections.getConnectionIDS();
         blockerToBlocked = new HashMap<>();
     }
