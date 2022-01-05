@@ -11,6 +11,7 @@ import java.nio.channels.SelectionKey;
 import java.nio.channels.Selector;
 import java.nio.channels.ServerSocketChannel;
 import java.nio.channels.SocketChannel;
+import java.util.Vector;
 import java.util.concurrent.ConcurrentLinkedQueue;
 import java.util.function.Supplier;
 
@@ -25,6 +26,11 @@ public class Reactor<T> implements Server<T> {
 
     private Thread selectorThread;
     private final ConcurrentLinkedQueue<Runnable> selectorTasks = new ConcurrentLinkedQueue<>();
+    private Vector<String> forbiddenWords;
+
+    public Vector<String> getForbiddenWords() {
+        return forbiddenWords;
+    }
 
     public Reactor(
             int numThreads,
@@ -38,6 +44,11 @@ public class Reactor<T> implements Server<T> {
         this.readerFactory = readerFactory;
         this.connections = ConnectionsImpl.getInstance();
         connections.setServer(this);
+        forbiddenWords = new Vector<>();
+        forbiddenWords.add("100Grade"); forbiddenWords.add("100GInTheWholeCourse");
+        forbiddenWords.add("fuck"); forbiddenWords.add("Hitex");
+        forbiddenWords.add("Trump");
+        connections.setForbidden(forbiddenWords);
     }
 
     @Override

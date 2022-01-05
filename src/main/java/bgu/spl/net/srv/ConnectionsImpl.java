@@ -17,6 +17,7 @@ public class ConnectionsImpl<T> implements Connections {
     private static ConnectionsImpl instance = new ConnectionsImpl();
     private static int connectionIdCounter = 0;
     private volatile HashMap<Integer,ConnectionHandler<T>> connectionIDS;
+    private Vector<String> forbiddenWords;
 
 
     public HashMap<Integer, ConnectionHandler<T>> getConnectionIDS() {
@@ -27,6 +28,7 @@ public class ConnectionsImpl<T> implements Connections {
         this.server = null;
         this.connectionsHandlerVector = new Vector<>();
         this.connectionIDS = new HashMap<>();
+        forbiddenWords = new Vector<>();
     }
     public void setServer(Server<T> server){
         this.server = server;
@@ -68,7 +70,18 @@ public class ConnectionsImpl<T> implements Connections {
         return connectionIdCounter;
     }
 
-//    public Integer getUserID(String username){
+    public Server<T> getServer() {
+        return server;
+    }
+
+    public void setForbidden(Vector<String> input){
+        this.forbiddenWords = input ;
+    }
+
+    public Vector<String> getForbiddenWords() {
+        return forbiddenWords;
+    }
+    //    public Integer getUserID(String username){
 //        Integer id = -1;
 //        for(Map.Entry<Integer, User> user : registeredUsers.entrySet()){
 //            if(user.getValue().getUserName().equals(username)) {

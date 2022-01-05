@@ -8,6 +8,7 @@ import bgu.spl.net.api.bidi.Connections;
 import java.io.IOException;
 import java.net.ServerSocket;
 import java.net.Socket;
+import java.util.Vector;
 import java.util.function.Supplier;
 
 public abstract class BaseServer<T> implements Server<T> {
@@ -17,6 +18,7 @@ public abstract class BaseServer<T> implements Server<T> {
     private final Supplier<MessageEncoderDecoder<T>> encdecFactory;
     private ServerSocket sock;
     private ConnectionsImpl<T> connections;
+    private Vector<String> forbiddenWords;
 
     public BaseServer(
             int port,
@@ -29,6 +31,11 @@ public abstract class BaseServer<T> implements Server<T> {
 		this.sock = null;
         this.connections = ConnectionsImpl.getInstance();
         connections.setServer(this);
+        forbiddenWords = new Vector<>();
+        forbiddenWords.add("100Grade"); forbiddenWords.add("100GInTheWholeCourse");
+        forbiddenWords.add("fuck"); forbiddenWords.add("Hitex");
+        forbiddenWords.add("Trump");
+        connections.setForbidden(forbiddenWords);
     }
 
 
@@ -81,5 +88,7 @@ public abstract class BaseServer<T> implements Server<T> {
 
     }
 
-
+    public Vector<String> getForbiddenWords() {
+        return forbiddenWords;
+    }
 }

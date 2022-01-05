@@ -34,6 +34,7 @@ public class BidiMessagingProtocolImpl implements BidiMessagingProtocol<Message>
     public void start(int connectionId, Connections<Message> connections) {
         this.connections = (ConnectionsImpl) connections;
         this.idOfSender = connectionId;
+        this.connectionHandler = ((ConnectionsImpl<Message>) connections).getConnectionIDS().get(connectionId);
     }
 
     /**
@@ -84,7 +85,6 @@ public class BidiMessagingProtocolImpl implements BidiMessagingProtocol<Message>
         }
 
     }
-
 
     @Override
     public boolean shouldTerminate() {
@@ -205,17 +205,18 @@ public class BidiMessagingProtocolImpl implements BidiMessagingProtocol<Message>
             connections.send(idOfSender, new ERRORMessage((short) 6));
         } else { // the sender is logged in
             //TODO : filter the words
-
-            PMMessage filteredMessage = new PMMessage("username", "content", "dateAndTime");
+            String filteredContent = filterContent(message.getContent());
+            PMMessage filtered =
+                        new PMMessage(message.getUsername(),filteredContent, message.getDateAndTime());
             int recipientID = database.getUserID(message.getUsername());
-            boolean success = connections.send(recipientID, filteredMessage);
+            boolean success = connections.send(recipientID, filtered);
             if (!success) {
                 connections.send(idOfSender, new ERRORMessage((short)6));
             } else { //success
                 // add FILTERED message to DATABASE
-                database.addMessage(filteredMessage, idOfSender);
+                database.addMessage(filtered, idOfSender);
                 // sending notification
-                connections.send(recipientID,new NotificationMessage((byte) 0 , database.getUserByID(idOfSender).getUserName(),message.getContent()));
+                connections.send(recipientID,new NotificationMessage((byte) 0 , database.getUserByID(idOfSender).getUserName(),filtered.getContent()));
                 // sending ACK
                 connections.send(idOfSender, new ACKMessage((short)6,null));
             }
@@ -347,5 +348,13 @@ public class BidiMessagingProtocolImpl implements BidiMessagingProtocol<Message>
 
     }
 
+    private String filterContent(String unfiltered){
+        String filtered = "";
+        Vector<String> vec = connections.getForbiddenWords();
+        for (String badword : vec){
+            unfiltered.replaceAll(badword , "<filtered>");
+        }
+        return filtered;
+    }
 
 }
