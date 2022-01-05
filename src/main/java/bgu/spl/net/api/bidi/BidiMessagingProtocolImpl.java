@@ -23,19 +23,18 @@ public class BidiMessagingProtocolImpl implements BidiMessagingProtocol<Message>
     private boolean shouldTerminate = false;
     private Database database;
     private int idOfSender;
-    public BidiMessagingProtocolImpl(ConnectionHandler connectionHandler){
-        this.connectionHandler = connectionHandler;
+    public BidiMessagingProtocolImpl( ){      //was :: public BidiMessagingProtocolImpl(ConnectionHandler connectionHandler)
+//        this.connectionHandler = connectionHandler;
         database = Database.getInstance();
         connections = ConnectionsImpl.getInstance();
-        idOfSender = database.getUserID(connectionHandler);
+//        idOfSender = database.getUserID(connectionHandler);
     }
 
     @Override
     public void start(int connectionId, Connections<Message> connections) {
         this.connections = (ConnectionsImpl) connections;
-
+        this.idOfSender = connectionId;
     }
-
 
     /**
      * each kind of message need a instanceof check

@@ -62,9 +62,10 @@ public class ConnectionsImpl<T> implements Connections {
         }
     }
 
-    public void addHandler(ConnectionHandler<T> handler){
+    public int addHandler(ConnectionHandler<T> handler){
         connectionsHandlerVector.add(handler);
         connectionIDS.put(connectionIdCounter++, handler);
+        return connectionIdCounter;
     }
 
 //    public Integer getUserID(String username){

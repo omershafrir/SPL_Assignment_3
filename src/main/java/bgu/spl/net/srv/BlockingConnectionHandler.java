@@ -22,11 +22,13 @@ public class BlockingConnectionHandler<T> implements Runnable, ConnectionHandler
         this.sock = sock;
         this.encdec = reader;
         this.protocol = protocol;
+
     }
 
     @Override
     public void run() {
         try (Socket sock = this.sock) { //just for automatic closing
+            protocol.start(ConnectionsImpl.getInstance().addHandler(this) ,ConnectionsImpl.getInstance() );
             int read;
             in = new BufferedInputStream(sock.getInputStream());
             while (!protocol.shouldTerminate() && connected && (read = in.read()) >= 0) {
