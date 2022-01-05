@@ -33,6 +33,9 @@ public class BidiMessagingProtocolImpl implements BidiMessagingProtocol<Message>
         this.connections = (ConnectionsImpl) connections;
         this.idOfSender = connectionId;
         this.connectionHandler = ((ConnectionsImpl<Message>) connections).getConnectionIDS().get(connectionId);
+        System.out.println("ID OF SENDER: "+ this.idOfSender);
+        System.out.println("IDS OF HANDLER: "+ this.connectionHandler);
+
     }
 
     /**
@@ -95,8 +98,8 @@ public class BidiMessagingProtocolImpl implements BidiMessagingProtocol<Message>
             connections.send(database.getUserID(message.getUsername()), new ERRORMessage((short)1));
         }
         else{
-            database.register(message, connectionHandler);
-            connections.send(database.getUserID(message.getUsername()), new ACKMessage((short)1,null));
+            int idOfNew = database.register(message, connectionHandler);
+            connections.send(idOfNew, new ACKMessage((short)1,null));
         }
 
     }

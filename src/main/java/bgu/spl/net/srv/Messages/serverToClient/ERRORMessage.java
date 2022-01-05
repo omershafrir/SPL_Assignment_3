@@ -3,6 +3,7 @@ package bgu.spl.net.srv.Messages.serverToClient;
 import bgu.spl.net.srv.Messages.Message;
 
 import java.nio.charset.StandardCharsets;
+import java.util.Arrays;
 
 public class ERRORMessage extends Message {
     private int messageOpcode;
@@ -28,6 +29,8 @@ public class ERRORMessage extends Message {
     @Override
     public byte[] encode() {
         if(messageOpcode <= (short) 9){
+//            System.out.println(Arrays.toString((""+opcode+messageOpcode).getBytes(StandardCharsets.UTF_8)));     ////////
+            System.out.println((""+opcode+'0'+messageOpcode));     ////////
             return (""+opcode+'0'+messageOpcode).getBytes(StandardCharsets.UTF_8);
         }
         else

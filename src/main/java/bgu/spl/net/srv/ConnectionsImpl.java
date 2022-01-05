@@ -15,7 +15,7 @@ public class ConnectionsImpl<T> implements Connections {
     private Server<T> server;
     private Vector<ConnectionHandler<T>> connectionsHandlerVector;  //////////// have to be updated, will indicate the loggedin status
     private static ConnectionsImpl instance = new ConnectionsImpl();
-    private static int connectionIdCounter = 0;
+    private static int connectionIdCounter;
     private volatile HashMap<Integer,ConnectionHandler<T>> connectionIDS;
     private Vector<String> forbiddenWords;
 
@@ -29,6 +29,7 @@ public class ConnectionsImpl<T> implements Connections {
         this.connectionsHandlerVector = new Vector<>();
         this.connectionIDS = new HashMap<>();
         forbiddenWords = new Vector<>();
+        connectionIdCounter = -1;
     }
     public void setServer(Server<T> server){
         this.server = server;
@@ -40,6 +41,9 @@ public class ConnectionsImpl<T> implements Connections {
 
     @Override
     public boolean send(int connectionId, Object msg) {
+        System.out.println("IDS: "+connectionIDS);  /////////////////////
+        System.out.println("connectionId: "+connectionId);  /////////////////////
+        System.out.println((connectionIDS.get(connectionId)));  /////////////////////
         ConnectionHandler<T> toSend =  connectionIDS.get(connectionId);
         toSend.send((T)msg);
         return true;
@@ -66,7 +70,7 @@ public class ConnectionsImpl<T> implements Connections {
 
     public int addHandler(ConnectionHandler<T> handler){
         connectionsHandlerVector.add(handler);
-        connectionIDS.put(connectionIdCounter++, handler);
+        connectionIDS.put(++connectionIdCounter, handler);
         return connectionIdCounter;
     }
 

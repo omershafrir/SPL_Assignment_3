@@ -60,6 +60,7 @@ public class Database {
         }
         return id;
     }
+
     public Integer getUserID(ConnectionHandler handler){
         Integer id = -1;
         for(Map.Entry<Integer, ConnectionHandler<Message>> CH : connectionIDS.entrySet()){
@@ -120,7 +121,7 @@ public class Database {
     }
 
     // Register:
-    public void register(RegisterMessage message, ConnectionHandler<Message> handler){
+    public int register(RegisterMessage message, ConnectionHandler<Message> handler){
         Integer id = -1;
         for(Map.Entry<Integer, ConnectionHandler<Message>> CH : connectionIDS.entrySet()){
             if(CH.getValue().equals(handler)) {
@@ -129,6 +130,7 @@ public class Database {
         }
         User toRegister = new User(message.getUsername(), message.getPassword(), message.getBirthday());
         registeredUsers.put(id,toRegister);
+        return id;
     }
     // Login:
     public void login(LoginMessage message , int idOfSender){

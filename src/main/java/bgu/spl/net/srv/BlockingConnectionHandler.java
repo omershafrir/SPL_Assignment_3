@@ -3,11 +3,14 @@ package bgu.spl.net.srv;
 import bgu.spl.net.api.MessageEncoderDecoder;
 import bgu.spl.net.api.MessagingProtocol;
 import bgu.spl.net.api.bidi.BidiMessagingProtocol;
+import bgu.spl.net.srv.Messages.Message;
 
 import java.io.BufferedInputStream;
 import java.io.BufferedOutputStream;
 import java.io.IOException;
 import java.net.Socket;
+import java.nio.charset.StandardCharsets;
+import java.util.Arrays;
 
 public class BlockingConnectionHandler<T> implements Runnable, ConnectionHandler<T> {
 
@@ -34,6 +37,7 @@ public class BlockingConnectionHandler<T> implements Runnable, ConnectionHandler
             while (!protocol.shouldTerminate() && connected && (read = in.read()) >= 0) {
                 T nextMessage = encdec.decodeNextByte((byte) read);
                 if (nextMessage != null) {
+                    System.out.println("INCOMING MESSAGE IS: "+nextMessage.toString());
                     protocol.process(nextMessage);
                 }
             }
@@ -52,6 +56,11 @@ public class BlockingConnectionHandler<T> implements Runnable, ConnectionHandler
     @Override
     public void send(T msg) {
         try {
+            out = new BufferedOutputStream(sock.getOutputStream());
+            System.out.println("MESSAGE: "+ msg);
+            System.out.println("ARRAY: "+ Arrays.toString(((Message) msg).toString().getBytes(StandardCharsets.UTF_8)));
+            System.out.println("ENCODER: "+ encdec);
+            System.out.println("out: "+ out);
             out.write(encdec.encode(msg));
             out.flush();
         } catch (IOException e) {

@@ -20,7 +20,8 @@ public class MessageEncoderDecoderImpl implements MessageEncoderDecoder<Message>
 
     @Override
     public Message decodeNextByte(byte nextByte) {
-        if (nextByte == '\n') {
+//        System.out.println("NEXT BYTE IS: "+nextByte);  //////////////////
+        if (nextByte == ';') {
             return buildMessage();
         }
         pushByte(nextByte);
