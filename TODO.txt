@@ -8,7 +8,7 @@ TO VERIFY:
 
 TO REMEMBER:
 1. call disconnect(int connectionId) when calling logout()/
-2. TODO: fix decoding of ACKMessage & ERRORMessage when given argument messageOpcode is 2 digits.
+2. fix decoding of ACKMessage & ERRORMessage when given argument messageOpcode is 2 digits. V
 3. for erez : continue routine - BIDI & connections !!
 4. POSTMessage process: vector of users that need to get the message , proccessing the message and put the users in the vector
 5. PMMessage process: filter the words

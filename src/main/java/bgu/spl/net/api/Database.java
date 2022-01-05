@@ -36,6 +36,11 @@ public class Database {
         connectionIDS = connections.getConnectionIDS();
         blockerToBlocked = new HashMap<>();
     }
+
+    public HashMap<User, Vector<User>> getFollowing() {
+        return following;
+    }
+
     public static Database getInstance(){
         return instance;
     }
@@ -168,6 +173,7 @@ public class Database {
         }
         return followingList.contains(sender);
     }
+
     public boolean unfollow(String username, Integer idOfSender){
         //sender wants to UNFOLLOW message.getname
         User sender = registeredUsers.get(idOfSender);
