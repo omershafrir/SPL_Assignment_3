@@ -9,9 +9,7 @@ import bgu.spl.net.srv.Messages.serverToClient.*;
 import bgu.spl.net.srv.User;
 
 import java.time.LocalDate;
-import java.util.LinkedList;
-import java.util.Map;
-import java.util.Vector;
+import java.util.*;
 
 
 public class BidiMessagingProtocolImpl implements BidiMessagingProtocol<Message>{
@@ -24,16 +22,17 @@ public class BidiMessagingProtocolImpl implements BidiMessagingProtocol<Message>
     private Database database;
     private int idOfSender;
     public BidiMessagingProtocolImpl( ){      //was :: public BidiMessagingProtocolImpl(ConnectionHandler connectionHandler)
-//        this.connectionHandler = connectionHandler;
         database = Database.getInstance();
         connections = ConnectionsImpl.getInstance();
 //        idOfSender = database.getUserID(connectionHandler);
+//        this.connectionHandler = connectionHandler;
     }
 
     @Override
     public void start(int connectionId, Connections<Message> connections) {
         this.connections = (ConnectionsImpl) connections;
         this.idOfSender = connectionId;
+        this.connectionHandler = ((ConnectionsImpl<Message>) connections).getConnectionIDS().get(connectionId);
     }
 
     /**
@@ -173,16 +172,10 @@ public class BidiMessagingProtocolImpl implements BidiMessagingProtocol<Message>
             connections.send(idOfSender, new ERRORMessage((short)5));
         }
         else{ // the sender is registered and logged in
-
-            //TODO : create the vector
-            //assuming I have a vector that holds the usernames that were mentioned in the message with
-            // a @username, combined with the list of follower of ths SENDER - need to prevent doubles
-            // make sure that blocked people dont get in by any chance
-
-            Vector<User> sendto = new Vector<>();
+            Vector<String> sendto = extractNames(message.getContent());
             //go through the vec and send the message to all users that need to get it
-            for(User user : sendto){
-                int idOfUser = database.getUserID(user.getUserName());
+            for(String usernames : sendto){
+                int idOfUser = database.getUserID(usernames);
                 boolean success = connections.send(idOfUser,message);
                 if(!success){
                     connections.send(idOfSender, new ERRORMessage((short)5));
@@ -347,5 +340,45 @@ public class BidiMessagingProtocolImpl implements BidiMessagingProtocol<Message>
 
     }
 
+    private Vector<String> extractNames(String content){
+        // extracting the users that mentioned in message and who follows me
+        // should prevent double appirance of users
+        // suppose to prevent blocking members to get the message
+
+        Vector<String> output1 = new Vector<>();
+        // extract names from message
+        int i = 0;
+        String acc = "";
+        while(i < content.length()){
+            if(content.charAt(i) == '@'){
+                while(content.charAt(i) != ' ' || content.charAt(i) != ',' || content.charAt(i) != '!' || content.charAt(i) != '.'){
+                    acc += content.charAt(i);
+                    i++;
+                }
+                if (!database.isBlocked(idOfSender,acc)) {
+                    output1.add(acc);
+                }
+                acc = "";
+            }
+        }
+        // extract who follows me
+        HashMap<User, Vector<User>> following = database.getFollowing();
+        Vector<String> output2 = new Vector<>();
+        User sender = database.getUserByID(idOfSender);
+        for(Map.Entry<User, Vector<User>> user : following.entrySet()){
+            if(user.getKey().getUserName().equals(sender.getUserName())) {
+                for (User toFind: user.getValue()){
+                    if (toFind.equals(sender)){
+                        output2.add(toFind.getUserName());
+                    }
+                }
+            }
+        }
+        output1.addAll(output2);
+        LinkedHashSet<String> convert = new LinkedHashSet<>(output1);
+        output1.clear();
+        output1.addAll(convert);
+        return output1;
+    }
 
 }
