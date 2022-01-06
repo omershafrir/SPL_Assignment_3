@@ -290,6 +290,17 @@ public class Database {
     }
 
 
+    public void printDatabase(){
+        System.out.println("connectionIDS MAP: ");
+        System.out.println(connectionIDS.toString());
+
+        System.out.println("loggedInUsers MAP: ");
+        System.out.println(loggedInUsers.toString());
+
+        System.out.println("registeredUsers MAP: ");
+        System.out.println(registeredUsers.toString());
+    }
+
 
 
 }

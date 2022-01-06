@@ -35,4 +35,11 @@ public class User {
         return userName;
     }
 
+    @Override
+    public String toString() {
+        return "User : " +
+                "userName='" + userName + '\'' +
+                ", password='" + password + '\''
+                ;
+    }
 }

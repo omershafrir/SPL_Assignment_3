@@ -93,6 +93,7 @@ public class BidiMessagingProtocolImpl implements BidiMessagingProtocol<Message>
     }
 
     private void processRegister(RegisterMessage message){
+        database.printDatabase();               //////////////////////////////////////////////////////////////////////
         //check if the username already registered - if yes return an error
         if(database.isRegistered(message.getUsername(),message.getPassword())){
             connections.send(database.getUserID(message.getUsername()), new ERRORMessage((short)1));
@@ -105,6 +106,7 @@ public class BidiMessagingProtocolImpl implements BidiMessagingProtocol<Message>
     }
 
     private void processLogin(LoginMessage message){
+        database.printDatabase();               //////////////////////////////////////////////////////////////////////
         //check if already logged in
         if(!database.isRegistered(message.getUsername(),message.getPassword()) || database.isLogedIn(message.getUsername())
                 || message.getCaptcha() == (byte)0){
@@ -118,6 +120,7 @@ public class BidiMessagingProtocolImpl implements BidiMessagingProtocol<Message>
 
 
     private void processLogout(){
+        database.printDatabase();               //////////////////////////////////////////////////////////////////////
         if(!database.thereIsSomeOneHere()){
             connections.send(idOfSender, new ERRORMessage((short)3));
         }
