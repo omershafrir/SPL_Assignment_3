@@ -8,6 +8,7 @@ import bgu.spl.net.srv.Messages.clientToServer.*;
 import jdk.internal.util.xml.impl.Pair;
 
 import java.util.*;
+import java.util.concurrent.ConcurrentHashMap;
 import java.util.function.Supplier;
 
 
@@ -16,24 +17,23 @@ public class ConnectionsImpl<T> implements Connections {
     private Vector<ConnectionHandler<T>> connectionsHandlerVector;  //////////// have to be updated, will indicate the loggedin status
     private static ConnectionsImpl instance = new ConnectionsImpl();
     private static int connectionIdCounter;
-    private volatile HashMap<Integer,ConnectionHandler<T>> connectionIDS;
+    private volatile ConcurrentHashMap<Integer,ConnectionHandler<T>> connectionIDS;
     private Vector<String> forbiddenWords;
 
 
-    public HashMap<Integer, ConnectionHandler<T>> getConnectionIDS() {
+    public ConcurrentHashMap<Integer, ConnectionHandler<T>> getConnectionIDS() {
         return connectionIDS;
     }
 
     private ConnectionsImpl() {
         this.server = null;
         this.connectionsHandlerVector = new Vector<>();
-        this.connectionIDS = new HashMap<>();
+        this.connectionIDS = new ConcurrentHashMap<>();
         forbiddenWords = new Vector<>();
         connectionIdCounter = -1;
     }
     public void setServer(Server<T> server){
         this.server = server;
-        //TODO::: call setServer
     }
     public static ConnectionsImpl getInstance(){
         return instance;

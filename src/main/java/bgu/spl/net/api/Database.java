@@ -15,30 +15,31 @@ import java.util.HashMap;
 import java.util.LinkedList;
 import java.util.Map;
 import java.util.Vector;
+import java.util.concurrent.ConcurrentHashMap;
 
 public class Database {
     // fields:
     private static Database instance = new Database();
     private static ConnectionsImpl connections;
-    private HashMap<Integer, User> loggedInUsers;   ////////////holds the logged in members
-    private HashMap<Integer, User> registeredUsers;
-    private HashMap<User, Vector<User>> following;
-    private HashMap<User, Vector<String>> blockerToBlocked;
-    private HashMap<User, Vector<Message>> postAndPMdataBase;
-    private HashMap<Integer,ConnectionHandler<Message>> connectionIDS;
+    private ConcurrentHashMap<Integer, User> loggedInUsers;   ////////////holds the logged in members
+    private ConcurrentHashMap<Integer, User> registeredUsers;
+    private ConcurrentHashMap<User, Vector<User>> following;
+    private ConcurrentHashMap<User, Vector<String>> blockerToBlocked;
+    private ConcurrentHashMap<User, Vector<Message>> postAndPMdataBase;
+    private ConcurrentHashMap<Integer,ConnectionHandler<Message>> connectionIDS;
 
     // constructor:
     private Database(){
-        loggedInUsers = new HashMap<>();
-        registeredUsers = new HashMap<>();
-        following = new HashMap<>();
-        postAndPMdataBase = new HashMap<>();
+        loggedInUsers = new ConcurrentHashMap<>();
+        registeredUsers = new ConcurrentHashMap<>();
+        following = new ConcurrentHashMap<>();
+        postAndPMdataBase = new ConcurrentHashMap<>();
         connections = ConnectionsImpl.getInstance();
         connectionIDS = connections.getConnectionIDS();
-        blockerToBlocked = new HashMap<>();
+        blockerToBlocked = new ConcurrentHashMap<>();
     }
 
-    public HashMap<User, Vector<User>> getFollowing() {
+    public ConcurrentHashMap<User, Vector<User>> getFollowing() {
         return following;
     }
 
@@ -95,10 +96,18 @@ public class Database {
         }
         return false;
     }
-    public boolean isRegistered(String username ,String password){
+    public boolean isRegistered(String username){
         //go through the active users DB and search for the specific user
         for(User exists : registeredUsers.values()){
-            if (exists.getUserName().equals(username) && exists.getPassword().equals(password) )
+            if (exists.getUserName().equals(username))
+                return true;
+        }
+        return false;
+    }
+    public boolean isRegistered(String username,String password){
+        //go through the active users DB and search for the specific user
+        for(User exists : registeredUsers.values()){
+            if (exists.getUserName().equals(username) && exists.getPassword().equals(password))
                 return true;
         }
         return false;
@@ -132,6 +141,11 @@ public class Database {
         registeredUsers.put(id,toRegister);
         return id;
     }
+
+    public ConcurrentHashMap<Integer, User> getRegisteredUsers() {
+        return registeredUsers;
+    }
+
     // Login:
     public void login(LoginMessage message , int idOfSender){
         Integer id = -1;
@@ -142,9 +156,11 @@ public class Database {
                 toLogIn = user.getValue();
             }
         }
-        registeredUsers.remove(id,toLogIn);
-        registeredUsers.put(idOfSender,toLogIn);
-        loggedInUsers.put(idOfSender,toLogIn);
+        if(id != -1) {
+            registeredUsers.remove(id, toLogIn);
+            registeredUsers.put(idOfSender, toLogIn);
+            loggedInUsers.put(idOfSender, toLogIn);
+        }
 
     }
 

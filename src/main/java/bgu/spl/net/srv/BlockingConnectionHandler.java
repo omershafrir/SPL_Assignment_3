@@ -37,7 +37,7 @@ public class BlockingConnectionHandler<T> implements Runnable, ConnectionHandler
             while (!protocol.shouldTerminate() && connected && (read = in.read()) >= 0) {
                 T nextMessage = encdec.decodeNextByte((byte) read);
                 if (nextMessage != null) {
-//                    System.out.println("INCOMING MESSAGE IS: "+nextMessage.toString());
+                    System.out.println("INCOMING MESSAGE IS: "+nextMessage.toString());
                     protocol.process(nextMessage);
                 }
             }
@@ -57,10 +57,8 @@ public class BlockingConnectionHandler<T> implements Runnable, ConnectionHandler
     public void send(T msg) {
         try {
             out = new BufferedOutputStream(sock.getOutputStream());
-//            System.out.println("MESSAGE: "+ msg);                                                         ///////////////////////////////////////////////////
-//            System.out.println("ARRAY: "+ Arrays.toString(((Message) msg).toString().getBytes(StandardCharsets.UTF_8)));//                                                                  ///////////////////////////////////////////////////
-//            System.out.println("ENCODER: "+ encdec);//                                                               ///////////////////////////////////////////////////
-//            System.out.println("out: "+ out);                                 ///////////////////////////////////////////////////
+            System.out.println("MESSAGE: "+ msg);
+            System.out.println("ARRAY: "+ Arrays.toString(((Message) msg).toString().getBytes(StandardCharsets.UTF_8)));
             out.write(encdec.encode(msg));
             out.flush();
         } catch (IOException e) {

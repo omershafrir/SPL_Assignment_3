@@ -10,6 +10,7 @@ import bgu.spl.net.srv.User;
 
 import java.time.LocalDate;
 import java.util.*;
+import java.util.concurrent.ConcurrentHashMap;
 
 
 public class BidiMessagingProtocolImpl implements BidiMessagingProtocol<Message>{
@@ -93,9 +94,8 @@ public class BidiMessagingProtocolImpl implements BidiMessagingProtocol<Message>
     }
 
     private void processRegister(RegisterMessage message){
-        database.printDatabase();               //////////////////////////////////////////////////////////////////////
         //check if the username already registered - if yes return an error
-        if(database.isRegistered(message.getUsername(),message.getPassword())){
+        if(database.isRegistered(message.getUsername())){
             connections.send(database.getUserID(message.getUsername()), new ERRORMessage((short)1));
         }
         else{
@@ -106,9 +106,14 @@ public class BidiMessagingProtocolImpl implements BidiMessagingProtocol<Message>
     }
 
     private void processLogin(LoginMessage message){
-        database.printDatabase();               //////////////////////////////////////////////////////////////////////
         //check if already logged in
-        if(!database.isRegistered(message.getUsername(),message.getPassword()) || database.isLogedIn(message.getUsername())
+        System.out.println("___________________________________________________________");
+        System.out.println("FIRST: "+!database.isRegistered(message.getUsername(), message.getPassword())
+        +"\nSEC: "+ database.isLogedIn(message.getUsername()));
+        System.out.println("THE TABLE : " + database.getRegisteredUsers());
+        System.out.println("___________________________________________________________");
+        if(     !database.isRegistered(message.getUsername(), message.getPassword())
+                || database.isLogedIn(message.getUsername())
                 || message.getCaptcha() == (byte)0){
             connections.send(database.getUserID(connectionHandler), new ERRORMessage((short)2));
         }
@@ -120,8 +125,7 @@ public class BidiMessagingProtocolImpl implements BidiMessagingProtocol<Message>
 
 
     private void processLogout(){
-        database.printDatabase();               //////////////////////////////////////////////////////////////////////
-        if(!database.thereIsSomeOneHere()){
+        if(!database.thereIsSomeOneHere() || !database.isLogedIn(database.getUserID(connectionHandler))){
             connections.send(idOfSender, new ERRORMessage((short)3));
         }
         else{ //need to send the server to connect, client leaves after getting an ACK message
