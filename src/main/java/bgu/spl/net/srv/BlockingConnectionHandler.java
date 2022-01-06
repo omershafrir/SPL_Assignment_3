@@ -59,8 +59,6 @@ public class BlockingConnectionHandler<T> implements Runnable, ConnectionHandler
             out = new BufferedOutputStream(sock.getOutputStream());
             System.out.println("MESSAGE: "+ msg);
             System.out.println("ARRAY: "+ Arrays.toString(((Message) msg).toString().getBytes(StandardCharsets.UTF_8)));
-            System.out.println("ENCODER: "+ encdec);
-            System.out.println("out: "+ out);
             out.write(encdec.encode(msg));
             out.flush();
         } catch (IOException e) {
