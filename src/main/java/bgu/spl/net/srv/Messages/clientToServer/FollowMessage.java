@@ -7,10 +7,12 @@ import java.nio.charset.StandardCharsets;
 public class FollowMessage extends Message {
 
     private byte command;
+//    private String follower;
     private String username;
 
     public FollowMessage(byte command , String username) {
         super((short)4);
+//        this.follower =
         this.username = username;
         this.command = command;     //0 if command = follow , 1 if command = unfollow
     }

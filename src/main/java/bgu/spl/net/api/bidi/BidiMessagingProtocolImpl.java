@@ -140,7 +140,7 @@ public class BidiMessagingProtocolImpl implements BidiMessagingProtocol<Message>
     private void processFollow(FollowMessage message){
         //if follow failed / !logged in ERROR message
         if(!database.isLogedIn(message.getUsername())){
-            connections.send(database.getUserID(message.getUsername()), new ERRORMessage((short)4));
+            connections.send(idOfSender, new ERRORMessage((short)4));
         }
         else{
             switch (message.getCommand()){
@@ -149,14 +149,14 @@ public class BidiMessagingProtocolImpl implements BidiMessagingProtocol<Message>
                     if(!database.isFollowing(message.getUsername(),idOfSender)){
                         boolean success = database.follow(message,idOfSender);
                         if(!success){
-                            connections.send(database.getUserID(message.getUsername()), new ERRORMessage((short)4));
+                            connections.send(idOfSender, new ERRORMessage((short)4));
                         }
                         else{ //success
                             connections.send(idOfSender, new ACKMessage((short)4,null));
                         }
                     }
                     else{
-                        connections.send(database.getUserID(message.getUsername()), new ERRORMessage((short)4));
+                        connections.send(idOfSender, new ERRORMessage((short)4));
                     }
                     break;
                 //unfollow
@@ -164,14 +164,14 @@ public class BidiMessagingProtocolImpl implements BidiMessagingProtocol<Message>
                     if(database.isFollowing(message.getUsername(),idOfSender)){
                         boolean success = database.unfollow(message.getUsername(),idOfSender);
                         if(!success){
-                            connections.send(database.getUserID(message.getUsername()), new ERRORMessage((short)4));
+                            connections.send((idOfSender), new ERRORMessage((short)4));
                         }
                         else{ // success
                             connections.send(idOfSender, new ACKMessage((short)4,null));
                         }
                     }
                     else{
-                        connections.send(database.getUserID(message.getUsername()), new ERRORMessage((short)4));
+                        connections.send((idOfSender), new ERRORMessage((short)4));
                     }
                     break;
             }

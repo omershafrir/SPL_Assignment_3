@@ -122,6 +122,7 @@ public class MessageEncoderDecoderImpl implements MessageEncoderDecoder<Message>
     private Message buildLogin(){
         int indexStart = 2;
         int curr = 2;
+        System.out.println(Arrays.toString(bytes));         //////////////////////////////////////////////////////////
 
         while(bytes[curr] != '\0'){
             curr++;
@@ -141,8 +142,8 @@ public class MessageEncoderDecoderImpl implements MessageEncoderDecoder<Message>
     private Message buildFollow(){
         int indexStart = 3;
         int curr = 3;
-
-        while(bytes[curr] != ';'){
+        System.out.println(Arrays.toString(bytes));         //////////////////////////////////////////////////////////
+        while(bytes[curr] != '\0'){
             curr++;
         }
         String username = new String(bytes, indexStart,curr - indexStart,StandardCharsets.UTF_8);
