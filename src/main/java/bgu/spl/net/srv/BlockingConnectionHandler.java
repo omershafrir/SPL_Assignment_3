@@ -57,8 +57,8 @@ public class BlockingConnectionHandler<T> implements Runnable, ConnectionHandler
     public void send(T msg) {
         try {
             out = new BufferedOutputStream(sock.getOutputStream());
-            System.out.println("MESSAGE: "+ msg);
-            System.out.println("ARRAY: "+ Arrays.toString(((Message) msg).toString().getBytes(StandardCharsets.UTF_8)));
+//            System.out.println("MESSAGE: "+ msg);
+//            System.out.println("ARRAY: "+ Arrays.toString(((Message) msg).toString().getBytes(StandardCharsets.UTF_8)));
             out.write(encdec.encode(msg));
             out.flush();
         } catch (IOException e) {

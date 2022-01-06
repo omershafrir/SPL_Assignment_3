@@ -307,6 +307,8 @@ public class Database {
 
 
     public void printDatabase(){
+        System.out.println();
+
         System.out.println("connectionIDS MAP: ");
         System.out.println(connectionIDS.toString());
 
@@ -315,6 +317,8 @@ public class Database {
 
         System.out.println("registeredUsers MAP: ");
         System.out.println(registeredUsers.toString());
+
+        System.out.println();
     }
 
 

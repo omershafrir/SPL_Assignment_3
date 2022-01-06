@@ -47,6 +47,7 @@ public class BidiMessagingProtocolImpl implements BidiMessagingProtocol<Message>
      */
     @Override
     public void process(Message message) {
+        database.printDatabase();
         //if opcode 3 shouldTerminate = true
         if (message instanceof RegisterMessage){
             processRegister((RegisterMessage)message);
@@ -90,7 +91,7 @@ public class BidiMessagingProtocolImpl implements BidiMessagingProtocol<Message>
 
     @Override
     public boolean shouldTerminate() {
-        return false;
+        return shouldTerminate;
     }
 
     private void processRegister(RegisterMessage message){
@@ -107,11 +108,11 @@ public class BidiMessagingProtocolImpl implements BidiMessagingProtocol<Message>
 
     private void processLogin(LoginMessage message){
         //check if already logged in
-        System.out.println("___________________________________________________________");
-        System.out.println("FIRST: "+!database.isRegistered(message.getUsername(), message.getPassword())
-        +"\nSEC: "+ database.isLogedIn(message.getUsername()));
-        System.out.println("THE TABLE : " + database.getRegisteredUsers());
-        System.out.println("___________________________________________________________");
+//        System.out.println("___________________________________________________________");
+//        System.out.println("FIRST: "+!database.isRegistered(message.getUsername(), message.getPassword())
+//        +"\nSEC: "+ database.isLogedIn(message.getUsername()));
+//        System.out.println("THE TABLE : " + database.getRegisteredUsers());
+//        System.out.println("___________________________________________________________");
         if(     !database.isRegistered(message.getUsername(), message.getPassword())
                 || database.isLogedIn(message.getUsername())
                 || message.getCaptcha() == (byte)0){
@@ -127,9 +128,12 @@ public class BidiMessagingProtocolImpl implements BidiMessagingProtocol<Message>
     private void processLogout(){
         if(!database.thereIsSomeOneHere() || !database.isLogedIn(database.getUserID(connectionHandler))){
             connections.send(idOfSender, new ERRORMessage((short)3));
+            System.out.println("AFTER FAILED LOGOUT: ");
+            database.printDatabase();
         }
         else{ //need to send the server to connect, client leaves after getting an ACK message
             connections.send(idOfSender , new ACKMessage((short)3,null));
+            shouldTerminate = true;             //////////////////////////////TODO: is good? /////////////////////
             database.logout(idOfSender);
         }
     }

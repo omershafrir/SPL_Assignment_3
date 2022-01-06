@@ -41,9 +41,9 @@ public class ConnectionsImpl<T> implements Connections {
 
     @Override
     public boolean send(int connectionId, Object msg) {
-        System.out.println("IDS: "+connectionIDS);  /////////////////////
-        System.out.println("connectionId: "+connectionId);  /////////////////////
-        System.out.println((connectionIDS.get(connectionId)));  /////////////////////
+//        System.out.println("IDS: "+connectionIDS);  /////////////////////
+//        System.out.println("connectionId: "+connectionId);  /////////////////////
+//        System.out.println((connectionIDS.get(connectionId)));  /////////////////////
         ConnectionHandler<T> toSend =  connectionIDS.get(connectionId);
         toSend.send((T)msg);
         return true;
