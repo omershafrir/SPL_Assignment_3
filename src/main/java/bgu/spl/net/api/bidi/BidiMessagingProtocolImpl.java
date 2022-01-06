@@ -372,7 +372,7 @@ public class BidiMessagingProtocolImpl implements BidiMessagingProtocol<Message>
             }
         }
         // extract who follows me
-        HashMap<User, Vector<User>> following = database.getFollowing();
+        ConcurrentHashMap<User, Vector<User>> following = database.getFollowing();
         Vector<String> output2 = new Vector<>();
         User sender = database.getUserByID(idOfSender);
         for(Map.Entry<User, Vector<User>> user : following.entrySet()){
