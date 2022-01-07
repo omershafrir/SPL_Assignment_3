@@ -224,7 +224,7 @@ public class Database {
 
     // PM / Post:
     public void addMessage(Message message , int connectionId){
-        if(postAndPMdataBase.get(loggedInUsers.get(connectionId)) == null){
+        if(!postAndPMdataBase.contains(connectionId)){
             Vector<Message> toUpdate = new Vector<>();
             toUpdate.add(message);
             postAndPMdataBase.put(getUserByID(connectionId), toUpdate);
@@ -299,6 +299,10 @@ public class Database {
     // Blocked:
     public boolean isBlocked(int idOfBlocker, String Blocked){
         User Blocker = getUserByID(idOfBlocker);
+        //if the blocker dont have a list of blocked members return false
+        if(blockerToBlocked.get(Blocker) == null)
+            return false;
+        //if he has a list - check if the BLOCKED user is there
         return blockerToBlocked.get(Blocker).contains(Blocked);
     }
     public void block(int idOfBlocker, String Blocked){
