@@ -73,11 +73,6 @@ public class Database {
     public String getRegisteredUserName(int idOfUser){
         String name = "";
         name = registeredUsers.get(idOfUser).getUserName();
-//        for(Map.Entry<Integer, User> userEntry : registeredUsers.entrySet()){
-//            if(userEntry.getValue().equals(idOfUser)) {
-//                name = userEntry.getValue().getUserName();
-//            }
-//        }
         return name;
     }
     public User getUserByNAME(String name){
