@@ -1,8 +1,9 @@
 TO VERIFY:
 1. who gets notification
 2. when does the notification get to the user if he is offline
-3. should terminate
-4. concurrency
+3. should terminate V (?)
+4. concurrency - done - need to be checked
+5. checkout about stats - i think that this is finished - should check this together
 
 TO REMEMBER:
 1. deal with notification

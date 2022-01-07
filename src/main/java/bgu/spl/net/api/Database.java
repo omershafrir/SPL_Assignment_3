@@ -73,11 +73,12 @@ public class Database {
     }
     public String getRegisteredUserName(int idOfUser){
         String name = "";
-        for(Map.Entry<Integer, User> userEntry : registeredUsers.entrySet()){
-            if(userEntry.getValue().equals(idOfUser)) {
-                name = userEntry.getValue().getUserName();
-            }
-        }
+        name = registeredUsers.get(idOfUser).getUserName();
+//        for(Map.Entry<Integer, User> userEntry : registeredUsers.entrySet()){
+//            if(userEntry.getValue().equals(idOfUser)) {
+//                name = userEntry.getValue().getUserName();
+//            }
+//        }
         return name;
     }
     public boolean isLogedIn(String userName){
@@ -223,8 +224,17 @@ public class Database {
 
     // PM / Post:
     public void addMessage(Message message , int connectionId){
-        Vector<Message> toUpdate = postAndPMdataBase.get(loggedInUsers.get(connectionId));
-        toUpdate.add(message);
+        if(!postAndPMdataBase.contains(connectionId)){
+            Vector<Message> toUpdate = new Vector<>();
+            toUpdate.add(message);
+            postAndPMdataBase.put(getUserByID(connectionId), toUpdate);
+        }
+        else{
+            Vector<Message> toUpdate = postAndPMdataBase.get(loggedInUsers.get(connectionId));
+            toUpdate.add(message);
+
+        }
+
     }
 
     // Logstat:
@@ -289,6 +299,10 @@ public class Database {
     // Blocked:
     public boolean isBlocked(int idOfBlocker, String Blocked){
         User Blocker = getUserByID(idOfBlocker);
+        //if the blocker dont have a list of blocked members return false
+        if(blockerToBlocked.get(Blocker) == null)
+            return false;
+        //if he has a list - check if the BLOCKED user is there
         return blockerToBlocked.get(Blocker).contains(Blocked);
     }
     public void block(int idOfBlocker, String Blocked){
