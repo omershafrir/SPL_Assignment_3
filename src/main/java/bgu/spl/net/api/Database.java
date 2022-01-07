@@ -3,10 +3,8 @@ package bgu.spl.net.api;
 import bgu.spl.net.srv.ConnectionHandler;
 import bgu.spl.net.srv.ConnectionsImpl;
 import bgu.spl.net.srv.Messages.Message;
-import bgu.spl.net.srv.Messages.clientToServer.FollowMessage;
-import bgu.spl.net.srv.Messages.clientToServer.LoginMessage;
-import bgu.spl.net.srv.Messages.clientToServer.PostMessage;
-import bgu.spl.net.srv.Messages.clientToServer.RegisterMessage;
+import bgu.spl.net.srv.Messages.clientToServer.*;
+import bgu.spl.net.srv.Messages.serverToClient.NotificationMessage;
 import bgu.spl.net.srv.User;
 
 import java.time.LocalDate;
@@ -27,7 +25,7 @@ public class Database {
     private ConcurrentHashMap<User, Vector<String>> blockerToBlocked;
     private ConcurrentHashMap<User, Vector<Message>> postAndPMdataBase;
     private ConcurrentHashMap<Integer,ConnectionHandler<Message>> connectionIDS;
-
+    private ConcurrentHashMap<User, Vector<Message>> loggedOutMessageHolder;
     // constructor:
     private Database(){
         loggedInUsers = new ConcurrentHashMap<>();
@@ -37,6 +35,7 @@ public class Database {
         connections = ConnectionsImpl.getInstance();
         connectionIDS = connections.getConnectionIDS();
         blockerToBlocked = new ConcurrentHashMap<>();
+        loggedOutMessageHolder = new ConcurrentHashMap<>();
     }
 
     public ConcurrentHashMap<User, Vector<User>> getFollowing() {
@@ -164,6 +163,26 @@ public class Database {
             registeredUsers.remove(id, toLogIn);
             registeredUsers.put(idOfSender, toLogIn);
             loggedInUsers.put(idOfSender, toLogIn);
+            // send the user that logs in all the messages that have been waiting for him
+            if(loggedOutMessageHolder.contains(toLogIn)){
+                //if he has messages, go through them and send each one
+                //depending on the instance
+                for (Message m : loggedOutMessageHolder.get(toLogIn)){
+                    if(m instanceof PMMessage)
+                        connections.send(id,new NotificationMessage((byte)0,((PMMessage) m).getUsername(),((PMMessage) m).getContent()));
+                    else{
+                        //need to find who posted it
+                        for(Map.Entry<User, Vector<Message>> user : postAndPMdataBase.entrySet()){
+                            Vector<Message> toCheck = user.getValue();
+                            if(toCheck.contains(m)){
+                                connections.send(id,new NotificationMessage((byte)1,user.getKey().getUserName(),((PostMessage) m).getContent()));
+                                break;
+                            }
+                        }
+
+                    }
+                }
+            }
         }
 
     }
@@ -220,7 +239,7 @@ public class Database {
 
     // PM / Post:
     public void addMessage(Message message , int connectionId){
-        if(!postAndPMdataBase.contains(connectionId)){
+        if(!postAndPMdataBase.contains(loggedInUsers.get(connectionId))){
             Vector<Message> toUpdate = new Vector<>();
             toUpdate.add(message);
             postAndPMdataBase.put(getUserByID(connectionId), toUpdate);
@@ -228,7 +247,18 @@ public class Database {
         else{
             Vector<Message> toUpdate = postAndPMdataBase.get(loggedInUsers.get(connectionId));
             toUpdate.add(message);
+        }
 
+    }
+    public void addMessageToLoggedOUT(Message message , int connectionId){
+        if(!loggedOutMessageHolder.contains(loggedInUsers.get(connectionId))){
+            Vector<Message> toUpdate = new Vector<>();
+            toUpdate.add(message);
+            loggedOutMessageHolder.put(getUserByID(connectionId), toUpdate);
+        }
+        else{
+            Vector<Message> toUpdate = loggedOutMessageHolder.get(loggedInUsers.get(connectionId));
+            toUpdate.add(message);
         }
 
     }
