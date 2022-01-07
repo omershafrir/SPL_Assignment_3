@@ -140,21 +140,16 @@ public class BidiMessagingProtocolImpl implements BidiMessagingProtocol<Message>
     }
     private void processFollow(FollowMessage message){
         //if follow failed / !logged in ERROR message
-        if(!database.isLogedIn(message.getUsername())){
+        if(!database.isLogedIn(idOfSender)){
             connections.send(idOfSender, new ERRORMessage((short)4));
         }
         else{
             switch (message.getCommand()){
                 //follow
                 case (0):
-                    if(!database.isFollowing(message.getUsername(),idOfSender)){
-                        boolean success = database.follow(message,idOfSender);
-                        if(!success){
-                            connections.send(idOfSender, new ERRORMessage((short)4));
-                        }
-                        else{ //success
-                            connections.send(idOfSender, new ACKMessage((short)4,null));
-                        }
+                    if(!database.isFollowing(idOfSender,message.getUsername())){
+                        database.follow(message,idOfSender);
+                        connections.send(idOfSender, new ACKMessage((short)4, message.getUsername()));
                     }
                     else{
                         connections.send(idOfSender, new ERRORMessage((short)4));
@@ -162,14 +157,9 @@ public class BidiMessagingProtocolImpl implements BidiMessagingProtocol<Message>
                     break;
                 //unfollow
                 case (1):
-                    if(database.isFollowing(message.getUsername(),idOfSender)){
-                        boolean success = database.unfollow(message.getUsername(),idOfSender);
-                        if(!success){
-                            connections.send((idOfSender), new ERRORMessage((short)4));
-                        }
-                        else{ // success
-                            connections.send(idOfSender, new ACKMessage((short)4,null));
-                        }
+                    if(database.isFollowing(idOfSender,message.getUsername())){
+                        database.unfollow(message.getUsername(),idOfSender);
+                        connections.send(idOfSender, new ACKMessage((short)4,message.getUsername()));
                     }
                     else{
                         connections.send((idOfSender), new ERRORMessage((short)4));
@@ -227,10 +217,9 @@ public class BidiMessagingProtocolImpl implements BidiMessagingProtocol<Message>
     }
     private void processPM(PMMessage message) {
         if (!database.isLogedIn(idOfSender) || !database.isRegistered(database.getUserID(message.getUsername()))
-                || !database.isFollowing(message.getUsername(), idOfSender)) {
+                || !database.isFollowing(idOfSender,message.getUsername())) {
             connections.send(idOfSender, new ERRORMessage((short) 6));
         } else { // the sender is logged in
-            //TODO : filter the words
             String filteredContent = filterContent(message.getContent());
             PMMessage filtered = new PMMessage(message.getUsername(),filteredContent, message.getDateAndTime());
             int recipientID = database.getUserID(message.getUsername());

@@ -81,6 +81,9 @@ public class Database {
 //        }
         return name;
     }
+    public User getUserByNAME(String name){
+        return getUserByID(getUserID(name));
+    }
     public boolean isLogedIn(String userName){
         //go through the active users DB and search for the specific user
         for(User exists : loggedInUsers.values()){
@@ -183,43 +186,36 @@ public class Database {
 
 
     // Follow / Unfollow:
-    public boolean follow(FollowMessage message, Integer idOfSender){
+    public void follow(FollowMessage message, Integer idOfSender){
         //sender wants to FOLLOW message.getname
-        User sender = registeredUsers.get(idOfSender);
-        Vector<User> followingList = new Vector<User>();
-        for(Map.Entry<User, Vector<User>> user : following.entrySet()){
-            if(user.getKey().getUserName().equals(message.getUsername())) {
-                user.getValue().add(sender);
-                followingList = user.getValue();
-            }
+        User sender = loggedInUsers.get(idOfSender);
+        //if this is the first follow command
+        if(!following.contains(sender)){
+            Vector<User> followingList = new Vector<User>();
+            following.put(sender, followingList);
         }
-        return followingList.contains(sender);
+        Vector<User> vecOfUsers = following.get(sender);
+        vecOfUsers.add(getUserByNAME(message.getUsername()));
     }
 
-    public boolean unfollow(String username, Integer idOfSender){
+    public void unfollow(String username, Integer idOfSender){
         //sender wants to UNFOLLOW message.getname
-        User sender = registeredUsers.get(idOfSender);
-        Vector<User> followingList = new Vector<User>();
-        for(Map.Entry<User, Vector<User>> user : following.entrySet()){
-            if(user.getKey().getUserName().equals(username)) {
-                user.getValue().remove(sender);
-                followingList = user.getValue();
-            }
+        User sender = loggedInUsers.get(idOfSender);
+        Vector<User> vecOfUsers = following.get(sender);
+        if(vecOfUsers.size() == 1) {
+            following.remove(sender);
         }
-        return !followingList.contains(sender);
+        else{
+            vecOfUsers.remove(getUserByNAME(username));
+        }
     }
-    public boolean isFollowing(String username, Integer idOfSender){
-        User sender = registeredUsers.get(idOfSender);
-        for(Map.Entry<User, Vector<User>> user : following.entrySet()){
-            if(user.getKey().getUserName().equals(username)) {
-                for (User toFind: user.getValue()){
-                    if (toFind.equals(sender)){
-                        return true;
-                    }
-                }
-            }
+    public boolean isFollowing(Integer idOfSender,String username){
+        User sender = loggedInUsers.get(idOfSender);
+        User followed = getUserByNAME(username);
+        if(following.get(sender) == null){
+            return false;
         }
-        return false;
+        return following.get(sender).contains(followed);
     }
 
     // PM / Post:
