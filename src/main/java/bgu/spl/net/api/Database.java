@@ -273,9 +273,7 @@ public class Database {
         for(Map.Entry<User, Vector<User>> userToMessage : following.entrySet()){
             if(userToMessage.getKey().equals(user)){
                 Vector<User> tocheck = userToMessage.getValue();
-                for (User u : tocheck){
-                    output++;
-                }
+                output = tocheck.size();
                 //if you found the User and calculated everything toy can take a break =]
                 break;
             }
