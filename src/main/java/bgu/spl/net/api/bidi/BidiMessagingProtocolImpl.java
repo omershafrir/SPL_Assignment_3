@@ -203,8 +203,13 @@ public class BidiMessagingProtocolImpl implements BidiMessagingProtocol<Message>
 //                    System.out.println("success and doing stuff if have users and followers");///////////////////////////////////////////////
                     // add message to DATABASE
                     database.addMessage(message,idOfSender);
-                    // send notification
-                    connections.send(idOfUser,new NotificationMessage((byte) 1 , database.getUserByID(idOfSender).getUserName(),message.getContent()));
+                    if(database.isLogedIn(idOfUser)) {
+                        // send notification
+                        connections.send(idOfUser, new NotificationMessage((byte) 1, database.getUserByID(idOfSender).getUserName(), message.getContent()));
+                    }
+                    else{
+                        // TODO : data struct for messages for offline people
+                    }
                     // send ACK
                     connections.send(idOfSender, new ACKMessage((short)5,null));
                 }
