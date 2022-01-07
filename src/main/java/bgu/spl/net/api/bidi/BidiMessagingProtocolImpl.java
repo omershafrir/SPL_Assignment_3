@@ -140,7 +140,7 @@ public class BidiMessagingProtocolImpl implements BidiMessagingProtocol<Message>
     }
     private void processFollow(FollowMessage message){
         //if follow failed / !logged in ERROR message
-        if(!database.isLogedIn(message.getUsername())){
+        if(!database.isLogedIn(idOfSender)){
             connections.send(idOfSender, new ERRORMessage((short)4));
         }
         else{
