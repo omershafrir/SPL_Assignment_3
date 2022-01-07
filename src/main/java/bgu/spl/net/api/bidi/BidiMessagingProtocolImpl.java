@@ -197,8 +197,8 @@ public class BidiMessagingProtocolImpl implements BidiMessagingProtocol<Message>
                         // send notification
                         connections.send(idOfUser, new NotificationMessage((byte) 1, database.getUserByID(idOfSender).getUserName(), message.getContent()));
                     }
-                    else{
-                        // TODO : data struct for messages for offline people
+                    else{ // the receiver was not logged in
+                        database.addMessageToLoggedOUT(message,idOfUser);
                     }
                     // send ACK
                     connections.send(idOfSender, new ACKMessage((short)5,null));
@@ -229,8 +229,13 @@ public class BidiMessagingProtocolImpl implements BidiMessagingProtocol<Message>
             } else { //success
                 // add FILTERED message to DATABASE
                 database.addMessage(filtered, idOfSender);
-                // sending notification
-                connections.send(recipientID,new NotificationMessage((byte) 0 , database.getUserByID(idOfSender).getUserName(),filtered.getContent()));
+                if(database.isLogedIn(recipientID)) {
+                    // sending notification
+                    connections.send(recipientID, new NotificationMessage((byte) 0, database.getUserByID(idOfSender).getUserName(), filtered.getContent()));
+                }
+                else{ // the receiver was not logged in
+                    database.addMessageToLoggedOUT(message,recipientID);
+                }
                 // sending ACK
                 connections.send(idOfSender, new ACKMessage((short)6,null));
             }

@@ -19,11 +19,11 @@ public class User {
         return birthday;
     }
     public int getIntYEAR(){
-       int year = Integer.parseInt(birthday.substring(6,4));
+       int year = Integer.parseInt(birthday.substring(6));
        return year;
     }
     public int getIntMONTH(){
-        int month = Integer.parseInt(birthday.substring(3,2));
+        int month = Integer.parseInt(birthday.substring(3,5));
         return month;
     }
     public int getIntDAY(){
