@@ -179,21 +179,27 @@ public class BidiMessagingProtocolImpl implements BidiMessagingProtocol<Message>
 
     }
     private void processPost(PostMessage message){
+        System.out.println("GOT THE POST MESSAGE");
         //check if the sender of this message is logged in
         if(!database.isLogedIn(database.getRegisteredUserName(idOfSender))
                 || !database.isRegistered(idOfSender) ){
             connections.send(idOfSender, new ERRORMessage((short)5));
         }
         else{ // the sender is registered and logged in
+            System.out.println("PASSED THE CONDITIONS AS EXPECTED");
             Vector<String> sendto = extractNames(message.getContent());
-            //go through the vec and send the message to all users that need to get it
+            System.out.println("THIS IS THE VECTORRRR"+sendto.toString());
+            if(!sendto.isEmpty()){ // there are users to inform - @users or followers
+                //go through the vec and send the message to all users that need to get it
             for(String usernames : sendto){
                 int idOfUser = database.getUserID(usernames);
                 boolean success = connections.send(idOfUser,message);
+                System.out.println("AFTER SENT OF post to follower(multipule prints)");
                 if(!success){
                     connections.send(idOfSender, new ERRORMessage((short)5));
                 }
                 else{ //success
+                    System.out.println("success and doing stuff if have users and followers");
                     // add message to DATABASE
                     database.addMessage(message,idOfSender);
                     // send notification
@@ -201,6 +207,14 @@ public class BidiMessagingProtocolImpl implements BidiMessagingProtocol<Message>
                     // send ACK
                     connections.send(idOfSender, new ACKMessage((short)5,null));
                 }
+            }
+            }
+            else{ // there are no users to inform
+                System.out.println("there is no one to inform, save the message in the DB and send ack");
+                // add message to DATABASE
+                database.addMessage(message,idOfSender);
+                // send ACK
+                connections.send(idOfSender, new ACKMessage((short)5,null));
             }
 
         }
@@ -212,8 +226,7 @@ public class BidiMessagingProtocolImpl implements BidiMessagingProtocol<Message>
         } else { // the sender is logged in
             //TODO : filter the words
             String filteredContent = filterContent(message.getContent());
-            PMMessage filtered =
-                        new PMMessage(message.getUsername(),filteredContent, message.getDateAndTime());
+            PMMessage filtered = new PMMessage(message.getUsername(),filteredContent, message.getDateAndTime());
             int recipientID = database.getUserID(message.getUsername());
             boolean success = connections.send(recipientID, filtered);
             if (!success) {
@@ -359,13 +372,17 @@ public class BidiMessagingProtocolImpl implements BidiMessagingProtocol<Message>
         // should prevent double appirance of users
         // suppose to prevent blocking members to get the message
 
+        System.out.println("GOT TO THE FUNCTION");
+        System.out.println("CONTANT IS: "+ content);
         Vector<String> output1 = new Vector<>();
         // extract names from message
         int i = 0;
         String acc = "";
-        while(i < content.length()){
+        boolean empty = content.length() == 0;
+        System.out.println("empty? " + empty);
+        while(i < content.length() & !empty){
             if(content.charAt(i) == '@'){
-                while(content.charAt(i) != ' ' || content.charAt(i) != ',' || content.charAt(i) != '!' || content.charAt(i) != '.'){
+                while(i < content.length() && content.charAt(i) != ' ' || content.charAt(i) != ',' || content.charAt(i) != '!' || content.charAt(i) != '.'){
                     acc += content.charAt(i);
                     i++;
                 }
@@ -374,6 +391,8 @@ public class BidiMessagingProtocolImpl implements BidiMessagingProtocol<Message>
                 }
                 acc = "";
             }
+            //trail
+            i++;
         }
         // extract who follows me
         ConcurrentHashMap<User, Vector<User>> following = database.getFollowing();
