@@ -29,6 +29,7 @@ public class StatMessage extends Message {
 
     private String listString(){
         String output="";
+        System.out.println("list: "+usernames.toString());
         if(usernames!=null) {
             int size = usernames.size();
             for (int i = 0; i < size; i++) {
@@ -38,6 +39,10 @@ public class StatMessage extends Message {
                     output += usernames.get(i).toString();
             }
         }
+        System.out.println("OUTPUT IS: "+output);
+        if(output.charAt(output.length()-1) == ';')
+            output = output.substring(0 , output.length()-1);
+
         return output;
     }
 }

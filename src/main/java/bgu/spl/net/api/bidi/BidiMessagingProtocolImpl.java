@@ -296,6 +296,7 @@ public class BidiMessagingProtocolImpl implements BidiMessagingProtocol<Message>
      * @param message
      */
     private void processStat(StatMessage message){
+        System.out.println("USERS: "+message.getUsernames().toString());        ////////////////////////////
         if(!database.isLogedIn(database.getRegisteredUserName(idOfSender))
                 || !database.isRegistered(idOfSender) ){
             connections.send(idOfSender, new ERRORMessage((short)8));

@@ -193,8 +193,11 @@ public class MessageEncoderDecoderImpl implements MessageEncoderDecoder<Message>
             if(bytes[curr] == '|'){
                 nameString.add(new String(bytes, indexStart,curr - indexStart,StandardCharsets.UTF_8));
                 indexStart = curr + 1;
+                curr++;                 ////////TODO CHECK*************************************//////////////////////
             }
         }
+        nameString.add(new String(bytes , indexStart , curr-indexStart , StandardCharsets.UTF_8));
+        System.out.println("AT BUILDING STAT: "+nameString);
         return new StatMessage(nameString);
 
     }
