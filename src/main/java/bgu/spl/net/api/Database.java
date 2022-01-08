@@ -164,6 +164,7 @@ public class Database {
             if(loggedOutMessageHolder.contains(toLogIn)){
                 //if he has messages, go through them and send each one
                 //depending on the instance
+                System.out.println("\nLOGOUT MESSAGE HOLDER: "+loggedOutMessageHolder+"\n"); /////////////////////////////////////////////
                 for (Message m : loggedOutMessageHolder.get(toLogIn)){
                     if(m instanceof PMMessage)
                         connections.send(id,new NotificationMessage((byte)0,((PMMessage) m).getUsername(),((PMMessage) m).getContent()));
@@ -179,6 +180,8 @@ public class Database {
 
                     }
                 }
+                loggedOutMessageHolder.get(toLogIn).clear();
+                loggedOutMessageHolder.remove(toLogIn);
             }
         }
 
@@ -248,13 +251,15 @@ public class Database {
 
     }
     public void addMessageToLoggedOUT(Message message , int connectionId){
-        if(!loggedOutMessageHolder.contains(loggedInUsers.get(connectionId))){
+        if(!loggedOutMessageHolder.contains(registeredUsers.get(connectionId))){
+            System.out.println("\nCREATED A NEW VECTOR!\n");            ///////////////////////////////////////////////////////
             Vector<Message> toUpdate = new Vector<>();
             toUpdate.add(message);
             loggedOutMessageHolder.put(getUserByID(connectionId), toUpdate);
         }
         else{
-            Vector<Message> toUpdate = loggedOutMessageHolder.get(loggedInUsers.get(connectionId));
+            System.out.println("\ndidnt created A NEW VECTOR!\n");            ///////////////////////////////////////////////////////
+            Vector<Message> toUpdate = loggedOutMessageHolder.get(registeredUsers.get(connectionId));
             toUpdate.add(message);
         }
 

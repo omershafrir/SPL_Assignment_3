@@ -177,22 +177,14 @@ public class BidiMessagingProtocolImpl implements BidiMessagingProtocol<Message>
             connections.send(idOfSender, new ERRORMessage((short)5));
         }
         else{ // the sender is registered and logged in
-//            System.out.println("PASSED THE CONDITIONS AS EXPECTED");///////////////////////////////////////////////
             Vector<String> sendto = extractNames(message.getContent());
-//            System.out.println("THIS IS THE VECTORRRR"+sendto.toString());///////////////////////////////////////////////
             if(!sendto.isEmpty()){ // there are users to inform - @users or followers
-                //go through the vec and send the message to all users that need to get it
-            for(String usernames : sendto){
+                                    //go through the vec and send the message to all users that need to get it
+                database.addMessage(message,idOfSender);
+                for(String usernames : sendto){
                 int idOfUser = database.getUserID(usernames);
-                boolean success = connections.send(idOfUser,message);
-//                System.out.println("AFTER SENT OF post to follower(multipule prints)");///////////////////////////////////////////////
-                if(!success){
-                    connections.send(idOfSender, new ERRORMessage((short)5));
-                }
-                else{ //success
 //                    System.out.println("success and doing stuff if have users and followers");///////////////////////////////////////////////
                     // add message to DATABASE
-                    database.addMessage(message,idOfSender);
                     if(database.isLogedIn(idOfUser)) {
                         // send notification
                         connections.send(idOfUser, new NotificationMessage((byte) 1, database.getUserByID(idOfSender).getUserName(), message.getContent()));
@@ -200,17 +192,14 @@ public class BidiMessagingProtocolImpl implements BidiMessagingProtocol<Message>
                     else{ // the receiver was not logged in
                         database.addMessageToLoggedOUT(message,idOfUser);
                     }
-                    // send ACK
-                    connections.send(idOfSender, new ACKMessage((short)5,null));
+                    connections.send(idOfSender, new ACKMessage((short)5,null));    // send ACK
                 }
             }
-            }
+
             else{ // there are no users to inform
 //                System.out.println("there is no one to inform, save the message in the DB and send ack");///////////////////////////////////////////////
-                // add message to DATABASE
-                database.addMessage(message,idOfSender);
-                // send ACK
-                connections.send(idOfSender, new ACKMessage((short)5,null));
+                database.addMessage(message,idOfSender);                                // add message to DATABASE
+                connections.send(idOfSender, new ACKMessage((short)5,null));    // send ACK
             }
 
         }
@@ -223,24 +212,18 @@ public class BidiMessagingProtocolImpl implements BidiMessagingProtocol<Message>
             String filteredContent = filterContent(message.getContent());
             PMMessage filtered = new PMMessage(message.getUsername(),filteredContent, message.getDateAndTime());
             int recipientID = database.getUserID(message.getUsername());
-            boolean success = connections.send(recipientID, filtered);
-            if (!success) {
-                connections.send(idOfSender, new ERRORMessage((short)6));
-            } else { //success
                 // add FILTERED message to DATABASE
                 database.addMessage(filtered, idOfSender);
                 if(database.isLogedIn(recipientID)) { // receiver is logged in
                     // sending notification
-                    System.out.println("SENDING THE NOTI FROM "+idOfSender+" TO "+recipientID);
                     connections.send(recipientID, new NotificationMessage((byte) 0, database.getUserByID(idOfSender).getUserName(), filtered.getContent()));
-                    connections.send(idOfSender, new NotificationMessage((byte) 0, database.getUserByID(idOfSender).getUserName(), filtered.getContent()));
                 }
                 else{ // the receiver was not logged in
+                    System.out.println("\nENTERED ADD MESSGAE TO LOGOUT!!!!\n");
                     database.addMessageToLoggedOUT(filtered,recipientID);
                 }
                 // sending ACK
                 connections.send(idOfSender, new ACKMessage((short)6,null));
-            }
         }
     }
 
@@ -397,8 +380,8 @@ public class BidiMessagingProtocolImpl implements BidiMessagingProtocol<Message>
         // should prevent double appirance of users
         // suppose to prevent blocking members to get the message
 
-        System.out.println("GOT TO THE FUNCTION");
-        System.out.println("CONTANT IS: "+ content);
+//        System.out.println("GOT TO THE FUNCTION");
+//        System.out.println("CONTANT IS: "+ content);
         Vector<String> output1 = new Vector<>();
         // extract names from message
         int i = 0;
@@ -424,19 +407,21 @@ public class BidiMessagingProtocolImpl implements BidiMessagingProtocol<Message>
         ConcurrentHashMap<User, Vector<User>> following = database.getFollowing();
         Vector<String> output2 = new Vector<>();
         User sender = database.getUserByID(idOfSender);
-        for(Map.Entry<User, Vector<User>> user : following.entrySet()){
-            if(user.getKey().getUserName().compareTo(sender.getUserName()) == 0) {
-                for (User toFind: user.getValue()){
+        for(Map.Entry<User, Vector<User>> pair : following.entrySet()){
+//            if(user.getKey().getUserName().compareTo(sender.getUserName()) == 0) {
+                for (User toFind: pair.getValue()){
                     if (toFind.equals(sender)){
-                        output2.add(toFind.getUserName());
+                        output2.add(pair.getKey().getUserName());
                     }
-                }
+//                }
             }
         }
+        System.out.println("VECTOR OF FOLLOWERS: "+output2);        /////////////////////////////////////////////
         output1.addAll(output2);
         LinkedHashSet<String> convert = new LinkedHashSet<>(output1);
         output1.clear();
         output1.addAll(convert);
+        System.out.println("FINISHED VECTOR OF USERS: "+output1);       ///////////////////////////////////////
         return output1;
     }
     private String filterContent(String unfiltered){
