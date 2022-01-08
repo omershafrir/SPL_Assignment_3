@@ -234,7 +234,7 @@ public class BidiMessagingProtocolImpl implements BidiMessagingProtocol<Message>
                     connections.send(recipientID, new NotificationMessage((byte) 0, database.getUserByID(idOfSender).getUserName(), filtered.getContent()));
                 }
                 else{ // the receiver was not logged in
-                    database.addMessageToLoggedOUT(message,recipientID);
+                    database.addMessageToLoggedOUT(filtered,recipientID);
                 }
                 // sending ACK
                 connections.send(idOfSender, new ACKMessage((short)6,null));
