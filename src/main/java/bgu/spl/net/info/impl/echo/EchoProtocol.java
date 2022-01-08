@@ -9,7 +9,7 @@ public class EchoProtocol implements MessagingProtocol<String> {
 
     @Override
     public String process(String msg) {
-        shouldTerminate = "bye".equals(msg);
+        shouldTerminate = "bye".compareTo(msg) == 0;
         System.out.println("[" + LocalDateTime.now() + "]: " + "THIS IS ME TAKING OVER BITCHHHHHH           "+ msg);
         return createEcho(msg);
     }

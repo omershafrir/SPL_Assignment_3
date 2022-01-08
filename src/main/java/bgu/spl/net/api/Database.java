@@ -54,7 +54,7 @@ public class Database {
     public Integer getUserID(String username){
         Integer id = -1;
         for(Map.Entry<Integer, User> user : registeredUsers.entrySet()){
-            if(user.getValue().getUserName().equals(username)) {
+            if(user.getValue().getUserName().compareTo(username) == 0) {
                 id = user.getKey();
             }
         }
@@ -81,7 +81,7 @@ public class Database {
     public boolean isLogedIn(String userName){
         //go through the active users DB and search for the specific user
         for(User exists : loggedInUsers.values()){
-            if (exists.getUserName().equals(userName))
+            if (exists.getUserName().compareTo(userName) == 0)
                 return true;
         }
         return false;
@@ -97,7 +97,7 @@ public class Database {
     public boolean isRegistered(String username){
         //go through the active users DB and search for the specific user
         for(User exists : registeredUsers.values()){
-            if (exists.getUserName().equals(username))
+            if (exists.getUserName().compareTo(username) == 0)
                 return true;
         }
         return false;
@@ -105,7 +105,7 @@ public class Database {
     public boolean isRegistered(String username,String password){
         //go through the active users DB and search for the specific user
         for(User exists : registeredUsers.values()){
-            if (exists.getUserName().equals(username) && exists.getPassword().equals(password))
+            if (exists.getUserName().compareTo(username) == 0 && exists.getPassword().compareTo(password) == 0)
                 return true;
         }
         return false;
@@ -149,7 +149,9 @@ public class Database {
         Integer id = -1;
         User toLogIn = null;
         for(Map.Entry<Integer, User> user : registeredUsers.entrySet()){
-            if(user.getValue().getUserName().equals(message.getUsername()) && user.getValue().getPassword().equals(message.getPassword())) {
+            if(user.getValue().getUserName().compareTo(message.getUsername()) == 0
+                    && user.getValue().getPassword().compareTo(message.getPassword()) == 0) {
+
                 id = user.getKey();
                 toLogIn = user.getValue();
             }

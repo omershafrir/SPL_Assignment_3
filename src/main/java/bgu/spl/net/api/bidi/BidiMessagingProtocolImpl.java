@@ -229,7 +229,7 @@ public class BidiMessagingProtocolImpl implements BidiMessagingProtocol<Message>
             } else { //success
                 // add FILTERED message to DATABASE
                 database.addMessage(filtered, idOfSender);
-                if(database.isLogedIn(recipientID)) {
+                if(database.isLogedIn(recipientID)) { // receiver is logged in
                     // sending notification
                     connections.send(recipientID, new NotificationMessage((byte) 0, database.getUserByID(idOfSender).getUserName(), filtered.getContent()));
                 }
@@ -423,7 +423,7 @@ public class BidiMessagingProtocolImpl implements BidiMessagingProtocol<Message>
         Vector<String> output2 = new Vector<>();
         User sender = database.getUserByID(idOfSender);
         for(Map.Entry<User, Vector<User>> user : following.entrySet()){
-            if(user.getKey().getUserName().equals(sender.getUserName())) {
+            if(user.getKey().getUserName().compareTo(sender.getUserName()) == 0) {
                 for (User toFind: user.getValue()){
                     if (toFind.equals(sender)){
                         output2.add(toFind.getUserName());
@@ -443,6 +443,7 @@ public class BidiMessagingProtocolImpl implements BidiMessagingProtocol<Message>
         for (String badword : vec){
             unfiltered.replaceAll(badword , "<filtered>");
         }
+        filtered = unfiltered;
         return filtered;
     }
     private Vector<User> userForSTAT(StatMessage message){
