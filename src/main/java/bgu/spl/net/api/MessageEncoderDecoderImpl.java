@@ -52,6 +52,7 @@ public class MessageEncoderDecoderImpl implements MessageEncoderDecoder<Message>
     public Message buildMessage() {
         Message output = null;
         int opcode = Integer.parseInt(new String(bytes,0,2,StandardCharsets.UTF_8));
+        System.out.println("OPCODE IS: "+opcode);
         switch (opcode){
             case 1:
                 output = buildRegister();
@@ -213,6 +214,7 @@ public class MessageEncoderDecoderImpl implements MessageEncoderDecoder<Message>
         }
 
         String content = new String(bytes, indexStart,curr - indexStart,StandardCharsets.UTF_8);
+        System.out.println("SENDING NOTIFICATION!");            /////////////////////////////////////////////
         return new NotificationMessage((byte) (bytes[2]-48),username,content);
     }
 

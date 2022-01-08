@@ -231,7 +231,9 @@ public class BidiMessagingProtocolImpl implements BidiMessagingProtocol<Message>
                 database.addMessage(filtered, idOfSender);
                 if(database.isLogedIn(recipientID)) { // receiver is logged in
                     // sending notification
+                    System.out.println("SENDING THE NOTI FROM "+idOfSender+" TO "+recipientID);
                     connections.send(recipientID, new NotificationMessage((byte) 0, database.getUserByID(idOfSender).getUserName(), filtered.getContent()));
+                    connections.send(idOfSender, new NotificationMessage((byte) 0, database.getUserByID(idOfSender).getUserName(), filtered.getContent()));
                 }
                 else{ // the receiver was not logged in
                     database.addMessageToLoggedOUT(filtered,recipientID);
@@ -438,7 +440,7 @@ public class BidiMessagingProtocolImpl implements BidiMessagingProtocol<Message>
         return output1;
     }
     private String filterContent(String unfiltered){
-        String filtered = "";
+        String filtered = unfiltered;
         Vector<String> vec = connections.getForbiddenWords();
         for (String badword : vec){
             unfiltered.replaceAll(badword , "<filtered>");

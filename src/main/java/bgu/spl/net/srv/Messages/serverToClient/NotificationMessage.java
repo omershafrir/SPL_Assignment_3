@@ -3,6 +3,7 @@ package bgu.spl.net.srv.Messages.serverToClient;
 import bgu.spl.net.srv.Messages.Message;
 
 import java.nio.charset.StandardCharsets;
+import java.util.Arrays;
 
 public class NotificationMessage extends Message {
     private byte notificationType;
@@ -35,6 +36,9 @@ public class NotificationMessage extends Message {
 
     @Override
     public byte[] encode() {
+        System.out.println("NOTIFICATION TOSTRING: "+toString());
+        System.out.println("NOTIFICATION BYTE[] IS: "+
+                Arrays.toString((""+0+opcode+notificationType+postingUser+'\0'+content+'\0').getBytes(StandardCharsets.UTF_8)));        ///////////////////
         return (""+0+opcode+notificationType+postingUser+'\0'+content+'\0').getBytes(StandardCharsets.UTF_8);
     }
 }
