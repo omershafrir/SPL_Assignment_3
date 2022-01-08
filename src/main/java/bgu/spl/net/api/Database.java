@@ -161,7 +161,7 @@ public class Database {
             registeredUsers.put(idOfSender, toLogIn);
             loggedInUsers.put(idOfSender, toLogIn);
             // send the user that logs in all the messages that have been waiting for him
-            if(loggedOutMessageHolder.contains(toLogIn)){
+            if(loggedOutMessageHolder.get(toLogIn) != null){
                 //if he has messages, go through them and send each one
                 //depending on the instance
                 System.out.println("\nLOGOUT MESSAGE HOLDER: "+loggedOutMessageHolder+"\n"); /////////////////////////////////////////////
@@ -172,7 +172,7 @@ public class Database {
                         //need to find who posted it
                         for(Map.Entry<User, Vector<Message>> user : postAndPMdataBase.entrySet()){
                             Vector<Message> toCheck = user.getValue();
-                            if(toCheck.contains(m)){
+                            if(toCheck.indexOf(m) != -1){
                                 connections.send(id,new NotificationMessage((byte)1,user.getKey().getUserName(),((PostMessage) m).getContent()));
                                 break;
                             }
@@ -209,7 +209,7 @@ public class Database {
         //sender wants to FOLLOW message.getname
         User sender = loggedInUsers.get(idOfSender);
         //if this is the first follow command
-        if(!following.contains(sender)){
+        if(following.get(sender) == null){
             Vector<User> followingList = new Vector<User>();
             following.put(sender, followingList);
         }
@@ -234,24 +234,24 @@ public class Database {
         if(following.get(sender) == null){
             return false;
         }
-        return following.get(sender).contains(followed);
+        return following.get(sender).indexOf(followed) != -1;
     }
 
     // PM / Post:
     public void addMessage(Message message , int connectionId){
-        if(!postAndPMdataBase.contains(loggedInUsers.get(connectionId))){
+        if(postAndPMdataBase.get(getUserByID(connectionId)) == null){
             Vector<Message> toUpdate = new Vector<>();
             toUpdate.add(message);
             postAndPMdataBase.put(getUserByID(connectionId), toUpdate);
         }
         else{
-            Vector<Message> toUpdate = postAndPMdataBase.get(loggedInUsers.get(connectionId));
+            Vector<Message> toUpdate = postAndPMdataBase.get(getUserByID(connectionId));
             toUpdate.add(message);
         }
 
     }
     public void addMessageToLoggedOUT(Message message , int connectionId){
-        if(!loggedOutMessageHolder.contains(registeredUsers.get(connectionId))){
+        if(loggedOutMessageHolder.get(getUserByID(connectionId)) == null){
             System.out.println("\nCREATED A NEW VECTOR!\n");            ///////////////////////////////////////////////////////
             Vector<Message> toUpdate = new Vector<>();
             toUpdate.add(message);
@@ -329,12 +329,13 @@ public class Database {
         if(blockerToBlocked.get(Blocker) == null)
             return false;
         //if he has a list - check if the BLOCKED user is there
-        return blockerToBlocked.get(Blocker).contains(Blocked);
+        //blockerToBlocked.get(Blocker).contains(Blocked)
+        return true;
     }
     public void block(int idOfBlocker, String Blocked){
         User Blocker = getUserByID(idOfBlocker);
         // The first block done for this user
-        if(!blockerToBlocked.containsKey(Blocker)){
+        if(blockerToBlocked.get(Blocker) == null){
             Vector<String> blockedVec = new Vector<String>();
             blockedVec.add(Blocked);
             blockerToBlocked.put(Blocker,blockedVec);
