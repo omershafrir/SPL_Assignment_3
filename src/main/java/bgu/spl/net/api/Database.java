@@ -157,6 +157,7 @@ public class Database {
             }
         }
         if(id != -1) {
+
             registeredUsers.remove(id, toLogIn);
             registeredUsers.put(idOfSender, toLogIn);
             loggedInUsers.put(idOfSender, toLogIn);
