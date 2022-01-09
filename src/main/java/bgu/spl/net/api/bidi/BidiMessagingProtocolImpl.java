@@ -309,11 +309,10 @@ public class BidiMessagingProtocolImpl implements BidiMessagingProtocol<Message>
             // check if someone is not registered as mentioned in
             // https://moodle2.bgu.ac.il/moodle/mod/forum/discuss.php?d=549972
             if (!toFilter.isEmpty()) {
-                for (User toExtract : toFilter) {
-                    if (!database.isRegistered(toExtract.getUserName())) {
+                for (User user : toFilter) {
+                    if(user.getUserName().compareTo(" ") == 0){
                         connections.send(idOfSender, new ERRORMessage((short) 8));
                         someoneHereISnotREGISTERED = true;
-                        break;
                     }
                 }
                 if (!someoneHereISnotREGISTERED) {
@@ -332,6 +331,9 @@ public class BidiMessagingProtocolImpl implements BidiMessagingProtocol<Message>
                             //send ACK
                             connections.send(idOfSender, new ACKMessage((short) 8, ageOfUserSTRING + " " +
                                     numOfPostsSTRING + " " + numOfFollowersSTRING + " " + numOfPeopleIFollowSTRING));
+                        }
+                        else{
+                            connections.send(idOfSender, new ACKMessage((short) 8,""));
                         }
                     }
                 }
@@ -447,8 +449,14 @@ public class BidiMessagingProtocolImpl implements BidiMessagingProtocol<Message>
         Vector<User> output = new Vector<>();
         List<String> toProcess = message.getUsernames();
         for(String name : toProcess){
-            int idOfUser = database.getUserID(name);
-            output.add(database.getUserByID(idOfUser));
+            if(database.isRegistered(name)) {
+                int idOfUser = database.getUserID(name);
+                output.add(database.getUserByID(idOfUser));
+            }
+            else{
+                output.add(new User(" " , " " , "03.11.1993"));
+                break;
+            }
         }
         return output;
     }

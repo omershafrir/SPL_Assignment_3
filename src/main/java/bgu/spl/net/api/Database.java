@@ -336,8 +336,8 @@ public class Database {
         if(blockerToBlocked.get(Blocker) == null)
             return false;
         //if he has a list - check if the BLOCKED user is there
-        //blockerToBlocked.get(Blocker).contains(Blocked)
-        return true;
+        return blockerToBlocked.get(Blocker).contains(Blocked);
+//        return true;
     }
     public void block(int idOfBlocker, String Blocked){
         User Blocker = getUserByID(idOfBlocker);

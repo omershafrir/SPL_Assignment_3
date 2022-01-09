@@ -242,12 +242,13 @@ public class MessageEncoderDecoderImpl implements MessageEncoderDecoder<Message>
     }
 
     private Message buildBlock(){
-        int curr = 2;
-
+        int curr = 3;
+        System.out.println("BYTES : "+Arrays.toString(bytes));
         while(bytes[curr] != '\0'){
             curr++;
         }
-        String username = new String(bytes, 2,curr - 2,StandardCharsets.UTF_8);
+        String username = new String(bytes, 3,curr - 3,StandardCharsets.UTF_8);
+        System.out.println("THE USERNASME OF BLOCK IS: "+username); ////////////////////////
         return new BlockMessage(username);
     }
 }
