@@ -218,15 +218,21 @@ public class Database {
         vecOfUsers.add(getUserByNAME(message.getUsername()));
     }
 
-    public void unfollow(String username, Integer idOfSender){
-        //sender wants to UNFOLLOW message.getname
-        User sender = loggedInUsers.get(idOfSender);
+    public void unfollow(Integer idOfSender , String username){
+        // sender wants to UNFOLLOW message.getname
+
+        // need to use registered list because
+        // the blocked wouldn't have to be logged in
+        User sender = registeredUsers.get(idOfSender);
+        User unfollowed = getUserByNAME(username);
         Vector<User> vecOfUsers = following.get(sender);
-        if(vecOfUsers.size() == 1) {
+        // check if this is the last user im following
+        // if so, check if this is the guy i want to unfollow
+        if(vecOfUsers.size() == 1 && vecOfUsers.indexOf(username) != -1) {
             following.remove(sender);
         }
         else{
-            vecOfUsers.remove(getUserByNAME(username));
+            vecOfUsers.remove(unfollowed);
         }
     }
     public boolean isFollowing(Integer idOfSender,String username){
