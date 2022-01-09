@@ -9,6 +9,7 @@ import jdk.internal.util.xml.impl.Pair;
 
 import java.util.*;
 import java.util.concurrent.ConcurrentHashMap;
+import java.util.concurrent.atomic.AtomicInteger;
 import java.util.function.Supplier;
 
 
@@ -16,7 +17,7 @@ public class ConnectionsImpl<T> implements Connections {
     private Server<T> server;
     private Vector<ConnectionHandler<T>> connectionsHandlerVector;  //////////// have to be updated, will indicate the loggedin status
     private static ConnectionsImpl instance = new ConnectionsImpl();
-    private static int connectionIdCounter;
+    private static AtomicInteger connectionIdCounter;
     private volatile ConcurrentHashMap<Integer,ConnectionHandler<T>> connectionIDS;
     private Vector<String> forbiddenWords;
 
@@ -30,7 +31,7 @@ public class ConnectionsImpl<T> implements Connections {
         this.connectionsHandlerVector = new Vector<>();
         this.connectionIDS = new ConcurrentHashMap<>();
         forbiddenWords = new Vector<>();
-        connectionIdCounter = -1;
+        connectionIdCounter = new AtomicInteger(-1);
     }
     public void setServer(Server<T> server){
         this.server = server;
@@ -70,8 +71,8 @@ public class ConnectionsImpl<T> implements Connections {
 
     public int addHandler(ConnectionHandler<T> handler){
         connectionsHandlerVector.add(handler);
-        connectionIDS.put(++connectionIdCounter, handler);
-        return connectionIdCounter;
+        connectionIDS.put(connectionIdCounter.incrementAndGet(), handler);
+        return connectionIdCounter.get();
     }
 
     public Server<T> getServer() {

@@ -99,11 +99,11 @@ public class BidiMessagingProtocolImpl implements BidiMessagingProtocol<Message>
     private void processRegister(RegisterMessage message){
         //check if the username already registered - if yes return an error
         if(database.isRegistered(message.getUsername())){
-            connections.send(database.getUserID(message.getUsername()), new ERRORMessage((short)1));
+            connections.send(database.getUserID(connectionHandler), new ERRORMessage((short)1));
         }
         else{
-            int idOfNew = database.register(message, connectionHandler);
-            connections.send(idOfNew, new ACKMessage((short)1,null));
+            database.register(message, connectionHandler);
+            connections.send(database.getUserID(connectionHandler), new ACKMessage((short)1,null));
         }
 
     }
@@ -122,7 +122,7 @@ public class BidiMessagingProtocolImpl implements BidiMessagingProtocol<Message>
         }
         else{
             database.login(message, idOfSender);
-            connections.send(database.getUserID(message.getUsername()), new ACKMessage((short)2,null));
+            connections.send(idOfSender, new ACKMessage((short)2,null));
         }
     }
 
@@ -130,7 +130,6 @@ public class BidiMessagingProtocolImpl implements BidiMessagingProtocol<Message>
     private void processLogout(){
         if(!database.thereIsSomeOneHere() || !database.isLogedIn(database.getUserID(connectionHandler))){
             connections.send(idOfSender, new ERRORMessage((short)3));
-            System.out.println("AFTER FAILED LOGOUT: ");
             database.printDatabase();
         }
         else{ //need to send the server to connect, client leaves after getting an ACK message
@@ -138,7 +137,7 @@ public class BidiMessagingProtocolImpl implements BidiMessagingProtocol<Message>
             shouldTerminate = true;             //////////////////////////////TODO: is good? /////////////////////
             database.logout(idOfSender);
         }
-    }
+    }     //V
     private void processFollow(FollowMessage message){
         //if follow failed / !logged in ERROR message
         if(!database.isLogedIn(idOfSender)){
@@ -169,12 +168,11 @@ public class BidiMessagingProtocolImpl implements BidiMessagingProtocol<Message>
             }
         }
 
-    }
+    }  //V
     private void processPost(PostMessage message){
 //        System.out.println("GOT THE POST MESSAGE"); ///////////////////////////////////////////////
         //check if the sender of this message is logged in
-        if(!database.isLogedIn(database.getRegisteredUserName(idOfSender))
-                || !database.isRegistered(idOfSender) ){
+        if(!database.isLogedIn(idOfSender)){
             connections.send(idOfSender, new ERRORMessage((short)5));
         }
         else{ // the sender is registered and logged in
@@ -182,52 +180,49 @@ public class BidiMessagingProtocolImpl implements BidiMessagingProtocol<Message>
             if(!sendto.isEmpty()){ // there are users to inform - @users or followers
                                     //go through the vec and send the message to all users that need to get it
                 // add message to DATABASE
-                database.addMessage(message,idOfSender);
+                database.addMessage(message,database.getUserByIDIFLOGGEDIN(idOfSender));
                 for(String usernames : sendto){
-                    int idOfUser = database.getUserID(usernames);
-//
-
-                    if(database.isLogedIn(idOfUser)) {
+                    if(database.isLogedIn(usernames)) {
+                        int idOfUser = database.getUserIDIFLOGGEDIN(usernames);
                         // send notification
-                        connections.send(idOfUser, new NotificationMessage((byte) 1, database.getUserByID(idOfSender).getUserName(), message.getContent()));
+                        connections.send(idOfUser, new NotificationMessage((byte) 1, database.getUserByIDIFLOGGEDIN(idOfSender).getUserName(), message.getContent()));
                     }
                     else{ // the receiver was not logged in
-                        database.addMessageToLoggedOUT(message,idOfUser);
+                        database.addMessageToLoggedOUT(message,database.getUserByNAME(usernames));
                     }
                     connections.send(idOfSender, new ACKMessage((short)5,null));    // send ACK
                 }
             }
 
             else{ // there are no users to inform
-//
-                database.addMessage(message,idOfSender);                                // add message to DATABASE
+                database.addMessage(message,database.getUserByIDIFLOGGEDIN(idOfSender));                                // add message to DATABASE
                 connections.send(idOfSender, new ACKMessage((short)5,null));    // send ACK
             }
 
         }
-    }
+    }    //V
     private void processPM(PMMessage message) {
-        if (!database.isLogedIn(idOfSender) || !database.isRegistered(database.getUserID(message.getUsername()))
-                || !database.isFollowing(idOfSender,message.getUsername()) || database.isBlocked(idOfSender, message.getUsername())) {
+        if (!database.isLogedIn(idOfSender) || !database.isFollowing(idOfSender,message.getUsername()) || database.isBlocked(idOfSender, message.getUsername())) {
             connections.send(idOfSender, new ERRORMessage((short) 6));
         } else { // the sender is logged in
             String filteredContent = filterContent(message.getContent());
             PMMessage filtered = new PMMessage(message.getUsername(),filteredContent, message.getDateAndTime());
-            int recipientID = database.getUserID(message.getUsername());
+            User recipientUser = database.getUserByNAME(message.getUsername());
                 // add FILTERED message to DATABASE
-                database.addMessage(filtered, idOfSender);
-                if(database.isLogedIn(recipientID)) { // receiver is logged in
+                database.addMessage(filtered, database.getUserByIDIFLOGGEDIN(idOfSender));
+                if(database.isLogedIn(recipientUser.getUserName())) { // receiver is logged in
                     // sending notification
-                    connections.send(recipientID, new NotificationMessage((byte) 0, database.getUserByID(idOfSender).getUserName(), filtered.getContent()));
+                    System.out.println("FILTERED: "+filtered.getContent());
+                    connections.send(database.getUserIDIFLOGGEDIN(message.getUsername()), new NotificationMessage((byte) 0, database.getUserByIDIFLOGGEDIN(idOfSender).getUserName(), filtered.getContent()));
                 }
                 else{ // the receiver was not logged in
                     System.out.println("\nENTERED ADD MESSGAE TO LOGOUT!!!!\n");
-                    database.addMessageToLoggedOUT(filtered,recipientID);
+                    database.addMessageToLoggedOUT(filtered,database.getUserByNAME(message.getUsername()));
                 }
                 // sending ACK
                 connections.send(idOfSender, new ACKMessage((short)6,null));
         }
-    }
+    }  //V
 
     /**
      * A LOGSTAT message is used to recieve data on a logged in users
@@ -243,7 +238,7 @@ public class BidiMessagingProtocolImpl implements BidiMessagingProtocol<Message>
      * @param message
      */
     private void processLogstat(LogstatMessage message){
-        if(!database.isLogedIn(idOfSender) || !database.isRegistered(idOfSender)){
+        if(!database.isLogedIn(idOfSender)){
             connections.send(idOfSender, new ERRORMessage((short) 7));
         }
         else{ // sender is logged in and registered
@@ -279,7 +274,7 @@ public class BidiMessagingProtocolImpl implements BidiMessagingProtocol<Message>
 
             }
         }
-    }
+    }  //VV
 
     /**
      * A STAT message is used to recieve data on a certain users (the age of every user , number of posts
@@ -299,8 +294,7 @@ public class BidiMessagingProtocolImpl implements BidiMessagingProtocol<Message>
      */
     private void processStat(StatMessage message){
         System.out.println("USERS: "+message.getUsernames().toString());        ////////////////////////////
-        if(!database.isLogedIn(database.getRegisteredUserName(idOfSender))
-                || !database.isRegistered(idOfSender) ){
+        if(!database.isLogedIn(idOfSender)){
             connections.send(idOfSender, new ERRORMessage((short)8));
         }
         else { // the sender is registered and logged in
@@ -342,7 +336,7 @@ public class BidiMessagingProtocolImpl implements BidiMessagingProtocol<Message>
                 connections.send(idOfSender, new ACKMessage((short) 8,""));
             }
         }
-    }
+    }     //VV
 
     /**
      * This message will be sent from the server for any PM sent to the user,
@@ -365,19 +359,18 @@ public class BidiMessagingProtocolImpl implements BidiMessagingProtocol<Message>
      * @param message
      */
     private void processBlock(BlockMessage message){
-        if(!database.isRegistered(database.getUserID(message.getUsername())) || !database.isLogedIn(idOfSender)
+        if(!database.isRegistered(message.getUsername()) || !database.isLogedIn(idOfSender)
         || database.isBlocked(idOfSender,message.getUsername()) ){
             connections.send(idOfSender, new ERRORMessage((short)12));
         }
         else{ //username exists
             // UNFOLLOW each other
-            User Blocker = database.getUserByID(idOfSender);
+            User Blocker = database.getUserByIDIFLOGGEDIN(idOfSender);
             if(database.isFollowing(idOfSender, message.getUsername())){
                 database.unfollow(idOfSender, message.getUsername());
             }
-            int BlockedID = database.getUserID(message.getUsername());
-            if(database.isFollowing(BlockedID,Blocker.getUserName())) {
-                database.unfollow(BlockedID, Blocker.getUserName());
+            if(database.isFollowing(message.getUsername(),Blocker.getUserName())) {
+                database.unfollow(message.getUsername(), Blocker.getUserName());
             }
             // add to the DB of the blocker
             database.block(idOfSender, message.getUsername());
@@ -407,7 +400,7 @@ public class BidiMessagingProtocolImpl implements BidiMessagingProtocol<Message>
                         acc += content.charAt(i);
                     i++;
                 }
-                if (!database.isBlocked(idOfSender,acc)) {
+                if (!database.isBlocked(acc , idOfSender)) {
                     output1.add(acc);
                 }
                 acc = "";
@@ -418,7 +411,7 @@ public class BidiMessagingProtocolImpl implements BidiMessagingProtocol<Message>
         // extract who follows me
         ConcurrentHashMap<User, Vector<User>> following = database.getFollowing();
         Vector<String> output2 = new Vector<>();
-        User sender = database.getUserByID(idOfSender);
+        User sender = database.getUserByIDIFLOGGEDIN(idOfSender);
         for(Map.Entry<User, Vector<User>> pair : following.entrySet()){
 //            if(user.getKey().getUserName().compareTo(sender.getUserName()) == 0) {
                 for (User toFind: pair.getValue()){
@@ -436,22 +429,19 @@ public class BidiMessagingProtocolImpl implements BidiMessagingProtocol<Message>
         System.out.println("FINISHED VECTOR OF USERS: "+output1);       ///////////////////////////////////////
         return output1;
     }
-    private String filterContent(String unfiltered){
-        String filtered = unfiltered;
+    public String filterContent(String unfiltered){
         Vector<String> vec = connections.getForbiddenWords();
         for (String badword : vec){
-            unfiltered.replaceAll(badword , "<filtered>");
+            unfiltered = unfiltered.replaceAll(badword , "<filtered>");
         }
-        filtered = unfiltered;
-        return filtered;
+        return unfiltered;
     }
     private Vector<User> userForSTAT(StatMessage message){
         Vector<User> output = new Vector<>();
         List<String> toProcess = message.getUsernames();
         for(String name : toProcess){
             if(database.isRegistered(name)) {
-                int idOfUser = database.getUserID(name);
-                output.add(database.getUserByID(idOfUser));
+                output.add(database.getUserByNAME(name));
             }
             else{
                 output.add(new User(" " , " " , "03.11.1993"));
@@ -459,5 +449,5 @@ public class BidiMessagingProtocolImpl implements BidiMessagingProtocol<Message>
             }
         }
         return output;
-    }
+    } //VVV
 }
