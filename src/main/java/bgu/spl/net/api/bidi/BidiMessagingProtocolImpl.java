@@ -85,6 +85,7 @@ public class BidiMessagingProtocolImpl implements BidiMessagingProtocol<Message>
 
         }
         else{ //(message instanceof BlockMessage)
+            System.out.println("BLOCK: "+message);
             processBlock((BlockMessage) message);
         }
 
