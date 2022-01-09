@@ -1,4 +1,4 @@
-* In addition submit a readme.txt file that contains specifications for:
+==============================================================================README=============================================================================
 1)How to run your code
 ~Server:
 mvn clean
@@ -23,3 +23,4 @@ LOGSTAT
 2)
 we stored each set of words in each server as a private field -  vector: name -forbbidenWords
 
+==============================================================================README=============================================================================
