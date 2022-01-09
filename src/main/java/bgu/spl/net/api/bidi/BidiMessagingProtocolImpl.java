@@ -158,7 +158,7 @@ public class BidiMessagingProtocolImpl implements BidiMessagingProtocol<Message>
                 //unfollow
                 case (1):
                     if(database.isFollowing(idOfSender,message.getUsername())){
-                        database.unfollow(message.getUsername(),idOfSender);
+                        database.unfollow(idOfSender,message.getUsername());
                         connections.send(idOfSender, new ACKMessage((short)4,message.getUsername()));
                     }
                     else{
@@ -180,11 +180,12 @@ public class BidiMessagingProtocolImpl implements BidiMessagingProtocol<Message>
             Vector<String> sendto = extractNames(message.getContent());
             if(!sendto.isEmpty()){ // there are users to inform - @users or followers
                                     //go through the vec and send the message to all users that need to get it
+                // add message to DATABASE
                 database.addMessage(message,idOfSender);
                 for(String usernames : sendto){
-                int idOfUser = database.getUserID(usernames);
-//                    System.out.println("success and doing stuff if have users and followers");///////////////////////////////////////////////
-                    // add message to DATABASE
+                    int idOfUser = database.getUserID(usernames);
+//
+
                     if(database.isLogedIn(idOfUser)) {
                         // send notification
                         connections.send(idOfUser, new NotificationMessage((byte) 1, database.getUserByID(idOfSender).getUserName(), message.getContent()));
@@ -197,7 +198,7 @@ public class BidiMessagingProtocolImpl implements BidiMessagingProtocol<Message>
             }
 
             else{ // there are no users to inform
-//                System.out.println("there is no one to inform, save the message in the DB and send ack");///////////////////////////////////////////////
+//
                 database.addMessage(message,idOfSender);                                // add message to DATABASE
                 connections.send(idOfSender, new ACKMessage((short)5,null));    // send ACK
             }
@@ -206,7 +207,7 @@ public class BidiMessagingProtocolImpl implements BidiMessagingProtocol<Message>
     }
     private void processPM(PMMessage message) {
         if (!database.isLogedIn(idOfSender) || !database.isRegistered(database.getUserID(message.getUsername()))
-                || !database.isFollowing(idOfSender,message.getUsername())) {
+                || !database.isFollowing(idOfSender,message.getUsername()) || database.isBlocked(idOfSender, message.getUsername())) {
             connections.send(idOfSender, new ERRORMessage((short) 6));
         } else { // the sender is logged in
             String filteredContent = filterContent(message.getContent());
@@ -316,10 +317,6 @@ public class BidiMessagingProtocolImpl implements BidiMessagingProtocol<Message>
                 for (User toExtract : toFilter) {
                     // conditions: the user from the list is - NOT blocked
                     //                                         if not registered - send an ERROR message
-                    if (!database.isRegistered(toExtract.getUserName())) {
-                        connections.send(idOfSender, new ERRORMessage((short) 8));
-                        continue;
-                    }
                     if (!database.isBlocked(idOfSender, toExtract.getUserName())) {
                         int ageOfUser = database.calculateAge(LocalDate.of(toExtract.getIntYEAR(), toExtract.getIntMONTH(), toExtract.getIntDAY()), LocalDate.now());
                         int numOfPosts = database.numOfPosts(toExtract);
@@ -359,15 +356,16 @@ public class BidiMessagingProtocolImpl implements BidiMessagingProtocol<Message>
      * @param message
      */
     private void processBlock(BlockMessage message){
-        if(!database.isRegistered(database.getUserID(message.getUsername())) || !database.isLogedIn(idOfSender)){
+        if(!database.isRegistered(database.getUserID(message.getUsername())) || !database.isLogedIn(idOfSender)
+        || database.isBlocked(idOfSender,message.getUsername()) ){
             connections.send(idOfSender, new ERRORMessage((short)12));
         }
         else{ //username exists
             // UNFOLLOW each other
             User Blocker = database.getUserByID(idOfSender);
-            database.unfollow(message.getUsername(),idOfSender);
+            database.unfollow(idOfSender, message.getUsername());
             int BlockedID = database.getUserID(message.getUsername());
-            database.unfollow(Blocker.getUserName(), BlockedID);
+            database.unfollow(BlockedID,Blocker.getUserName());
             // add to the DB of the blocker
             database.block(idOfSender, message.getUsername());
             // send ACK
