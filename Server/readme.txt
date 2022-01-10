@@ -1,12 +1,26 @@
-instructions to run our project:
+==============================================================================README=============================================================================
+1)How to run your code
+~Server:
+mvn clean
+mvn compile
 
-1.
+1.1)
+for TPC:
+mvn exec:java -Dexec.mainClass="bgu.spl.net.impl.BGSServer.TPCMain" -Dexec.args="217"
 
-1.1.
+for reactor:
+mvn exec:java -Dexec.mainClass="bgu.spl.net.impl.BGSServer.ReactorMain" -Dexec.args="217 3"
 
-1.2.
+1.2)
+REGISTER A 1 11.11.1111
+LOGIN A 1 1
+PM B WHAT IS UP
+POST @B how are you?
+BLOCK B
+STAT B
+LOGSTAT
 
-2. The "bad" words are hard-coded to the server. they are stored in a vector named "forbiddenWords"
-   which is a private field of the server object (both the base-server and the reactor).
-   This vector is initialized in the constructor of the server, therefore you can find them in
-   both of the constructors (Reactor & TPC).
+2)
+we stored each set of words in each server as a private field -  vector: name -forbbidenWords
+
+==============================================================================README=============================================================================
